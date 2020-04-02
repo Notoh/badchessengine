@@ -11,7 +11,7 @@
 
 #endif
 
-int getTimeMs() {
+long getTimeMs() {
 #ifdef WIN32
     return GetTickCount();
 #else

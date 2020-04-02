@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define DEBUG
+//#define DEBUG
 
 #ifndef DEBUG
 #define ASSERT(n)
@@ -30,7 +30,7 @@ typedef unsigned long long u64;
 
 #define MAXGAMEMOVES 2048
 #define MAXPOSITIONMOVES 256
-#define MAXDEPTH 128
+#define MAXDEPTH 100
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -67,6 +67,35 @@ typedef struct {
 
 } S_UNDO;
 
+typedef struct {
+    u64 posKey;
+    int move;
+} S_PVENTRY;
+
+typedef struct {
+    S_PVENTRY *pTable;
+    int numEntries;
+} S_PVTABLE;
+
+typedef struct {
+    int move;
+    /* Move is in format
+     * Castle (1 bit) 0x1000000
+     * Promoted Piece (4 bits) >>20 0xf
+     * pawn start (1 bit) 0x80000
+     * enpassant (1 bit) 0x40000
+     * captured piece (4 bits) >> 14, 0xf
+     * to square (7 bits) >> 7 0x7f
+     * from square (7 bits) 0x7f <--- LSB
+    */
+    int score;
+
+} S_MOVE;
+
+typedef struct {
+    S_MOVE moves[MAXPOSITIONMOVES];
+    int count;
+} S_MOVELIST;
 
 typedef struct {
     int pieces[BRD_SQ_NUM];
@@ -96,29 +125,31 @@ typedef struct {
     //piece list
     int pList[13][10];
 
+    S_PVTABLE pvtable[1];
+    int pvarray[MAXDEPTH];
+
+    int searchHistory[13][BRD_SQ_NUM];
+    int searchKillers[2][MAXDEPTH];
 
 } S_BOARD;
 
 typedef struct {
-    int move;
-    /* Move is in format
-     * Castle (1 bit) 0x1000000
-     * Promoted Piece (4 bits) >>20 0xf
-     * pawn start (1 bit) 0x80000
-     * enpassant (1 bit) 0x40000
-     * captured piece (4 bits) >> 14, 0xf
-     * to square (7 bits) >> 7 0x7f
-     * from square (7 bits) 0x7f <--- LSB
-    */
-    int score;
+    long start;
+    long stop;
+    int depth;
+    int depthset;
+    int movestogo;
+    int timeset;
 
-} S_MOVE;
+    long nodes;
 
-typedef struct {
-    S_MOVE moves[MAXPOSITIONMOVES];
-    int count;
-} S_MOVELIST;
+    int quit;
+    int stopped;
 
+    float fh;
+    float fhf;
+
+} S_SEARCHINFO;
 
 #define FROMSQ(m) ((m) & 0x7f)
 #define TOSQ(m) (((m)>>7) & 0x7f)
@@ -227,6 +258,8 @@ extern int pceValidEmptyOffbrd(const int pce);
 
 //movegen.c
 extern void generateAllMoves(const S_BOARD *pos, S_MOVELIST *movelist);
+extern int moveExists(S_BOARD *pos, const int move);
+extern int initMvvLva();
 
 //makemove.c
 extern int makeMove(S_BOARD *pos, int move);
@@ -236,6 +269,22 @@ extern void takeMove(S_BOARD *pos);
 extern void perftTest(S_BOARD *pos, int depth);
 
 //search.c
-extern void searchPosition(S_BOARD *pos);
+extern void searchPosition(S_BOARD *pos, S_SEARCHINFO *info);
+
+//util.c
+extern long getTimeMs();
+
+//pvtable.c
+extern void initPvTable(S_PVTABLE *table);
+extern void storePvMove(const S_BOARD *pos, const int move);
+extern int probePvTable(const S_BOARD *pos);
+extern int getPvLine(S_BOARD *pos, const int depth);
+extern void clearPvTable(S_PVTABLE *table);
+
+//evaluate.c
+extern int eval(const S_BOARD *pos);
+extern int materialDraw(const S_BOARD *pos);
+
+
 
 #endif //BCE_DEFS_H

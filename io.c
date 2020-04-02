@@ -85,7 +85,7 @@ void printmvlist(const S_MOVELIST *list) {
     int index = 0;
     int score = 0;
     int move = 0;
-    printf("Movelist:\n");
+    printf("Movelist: %d\n",list->count);
 
     for(index = 0; index < list->count; ++index) {
 

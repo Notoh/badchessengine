@@ -37,6 +37,7 @@ void resetBoard(S_BOARD *pos) {
     pos->castlePerm = 0;
 
     pos->posKey = 0ULL;
+
 }
 
 int parseFEN(char *fen, S_BOARD *pos) {

@@ -19,7 +19,7 @@ u64 castleKeys[16];
 int filesBrd[BRD_SQ_NUM];
 int ranksBrd[BRD_SQ_NUM];
 
-void initFilesRanksBrd() {
+static void initFilesRanksBrd() {
     int index = 0;
     int file = FILE_A;
     int rank = RANK_1;
@@ -40,7 +40,7 @@ void initFilesRanksBrd() {
 
 }
 
-void initHashKeys() {
+static void initHashKeys() {
     int index = 0;
     int index2 = 0;
     for(index = 0; index < 13; index++) {
@@ -54,7 +54,7 @@ void initHashKeys() {
     }
 }
 
-void initBitMasks() {
+static void initBitMasks() {
     int index = 0;
 
     for(index = 0; index < 64; index++) {
@@ -68,7 +68,7 @@ void initBitMasks() {
     }
 }
 
-void initSq120toSq64() {
+static void initSq120toSq64() {
      int index = 0;
      int file = FILE_A;
      int rank = RANK_1;
@@ -96,6 +96,7 @@ void init() {
     initBitMasks();
     initHashKeys();
     initFilesRanksBrd();
+    initMvvLva();
 }
 
 

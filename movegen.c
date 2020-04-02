@@ -26,7 +26,44 @@ const int numDir[13] = {
         0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8
 };
 
+const int victimScore[13] = {0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600 };
+
+static int mvvLvaScores[13][13];
+
+int initMvvLva() {
+    int attacker;
+    int victim;
+    for(attacker = wP; attacker <= bK; attacker++) {
+        for(victim = wP; victim <= bK; victim++) {
+            mvvLvaScores[victim][attacker] = victimScore[victim] + 6 - (victimScore[attacker] / 100);
+        }
+    }
+}
+
+int moveExists(S_BOARD *pos, const int move) {
+
+    S_MOVELIST list[1];
+    generateAllMoves(pos,list);
+
+    int MoveNum = 0;
+    for(MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+
+        if (!makeMove(pos,list->moves[MoveNum].move))  {
+            continue;
+        }
+        takeMove(pos);
+        if(list->moves[MoveNum].move == move) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 static void addQuietMove(const S_BOARD *pos, int move, S_MOVELIST *movelist) {
+
+    ASSERT(sqOnBoard(FROMSQ(move)));
+    ASSERT(sqOnBoard())
+
     movelist->moves[movelist->count].move = move;
     movelist->moves[movelist->count].score = 0;
     movelist->count++;
@@ -34,13 +71,13 @@ static void addQuietMove(const S_BOARD *pos, int move, S_MOVELIST *movelist) {
 
 static void addCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *movelist) {
     movelist->moves[movelist->count].move = move;
-    movelist->moves[movelist->count].score = 0;
+    movelist->moves[movelist->count].score = mvvLvaScores[CAPTURED(move)][pos->pieces[FROMSQ(move)]];
     movelist->count++;
 }
 
 static void addEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *movelist) {
     movelist->moves[movelist->count].move = move;
-    movelist->moves[movelist->count].score = 0;
+    movelist->moves[movelist->count].score = 105;
     movelist->count++;
 }
 
@@ -135,18 +172,18 @@ void generateAllMoves(const S_BOARD *pos, S_MOVELIST *movelist) {
             }
 
             if(!SQOFFBOARD(sq + 9) && pieceCol[pos->pieces[sq + 9]] == BLACK) {
-                addWhitePawnCapMove(pos, sq, sq+9, pos->pieces[sq+9], movelist);
+                addEnPassantMove(pos, MOVE(sq, sq+9, EMPTY, EMPTY, MFLAGEP), movelist);
             }
             if(!SQOFFBOARD(sq + 11) && pieceCol[pos->pieces[sq+11]] == BLACK) {
-                addWhitePawnCapMove(pos, sq, sq+11, pos->pieces[sq+11], movelist);
+                addEnPassantMove(pos, MOVE(sq, sq+11, EMPTY, EMPTY, MFLAGEP), movelist);
             }
-
-            if(sq + 9 == pos->enPas) {
-                addCaptureMove(pos, MOVE(sq, sq+9, EMPTY, EMPTY, MFLAGEP), movelist);
-            } else if(sq + 11 == pos->enPas) { //if enPas exists it cant exist on the other, so if else saves a few cycles sometimes
-                addCaptureMove(pos, MOVE(sq, sq+11, EMPTY, EMPTY, MFLAGEP), movelist);
+            if(pos->enPas != NO_SQ) {
+                if(sq + 9 == pos->enPas) {
+                    addCaptureMove(pos, MOVE(sq, sq+9, EMPTY, EMPTY, MFLAGEP), movelist);
+                } else if(sq + 11 == pos->enPas) { //if enPas exists it cant exist on the other, so if else saves a few cycles sometimes
+                    addCaptureMove(pos, MOVE(sq, sq+11, EMPTY, EMPTY, MFLAGEP), movelist);
+                }
             }
-
         }
         //castling
         if(pos->castlePerm & WSCA) {
@@ -182,13 +219,13 @@ void generateAllMoves(const S_BOARD *pos, S_MOVELIST *movelist) {
             if(!SQOFFBOARD(sq - 11) && pieceCol[pos->pieces[sq-11]] == WHITE) {
                 addBlackPawnCapMove(pos, sq, sq-11, pos->pieces[sq-11], movelist);
             }
-
-            if(sq - 9 == pos->enPas) {
-                addCaptureMove(pos, MOVE(sq, sq-9, EMPTY, EMPTY, MFLAGEP), movelist);
-            } else if(sq - 11 == pos->enPas) { //if enPas exists it cant exist on the other, so else saves a few cycles sometimes
-                addCaptureMove(pos, MOVE(sq, sq-11, EMPTY, EMPTY, MFLAGEP), movelist);
+            if(pos->enPas != NO_SQ) {
+                if(sq - 9 == pos->enPas) {
+                    addEnPassantMove(pos, MOVE(sq, sq-9, EMPTY, EMPTY, MFLAGEP), movelist);
+                } else if(sq - 11 == pos->enPas) { //if enPas exists it cant exist on the other, so else saves a few cycles sometimes
+                    addEnPassantMove(pos, MOVE(sq, sq-11, EMPTY, EMPTY, MFLAGEP), movelist);
+                }
             }
-
         }
         //castling
         if(pos->castlePerm & BSCA) {
