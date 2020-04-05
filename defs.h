@@ -259,7 +259,8 @@ extern int pceValidEmptyOffbrd(const int pce);
 //movegen.c
 extern void generateAllMoves(const S_BOARD *pos, S_MOVELIST *movelist);
 extern int moveExists(S_BOARD *pos, const int move);
-extern int initMvvLva();
+extern void initMvvLva();
+extern void generateAllCaps(const S_BOARD *pos, S_MOVELIST *movelist);
 
 //makemove.c
 extern int makeMove(S_BOARD *pos, int move);
@@ -273,6 +274,7 @@ extern void searchPosition(S_BOARD *pos, S_SEARCHINFO *info);
 
 //util.c
 extern long getTimeMs();
+extern void ReadInput(S_SEARCHINFO *info);
 
 //pvtable.c
 extern void initPvTable(S_PVTABLE *table);
@@ -285,6 +287,8 @@ extern void clearPvTable(S_PVTABLE *table);
 extern int eval(const S_BOARD *pos);
 extern int materialDraw(const S_BOARD *pos);
 
+//uci.c
+void uciLoop();
 
 
 #endif //BCE_DEFS_H

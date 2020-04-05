@@ -3,8 +3,12 @@
 #define INFINITE 30000
 #define MATE 29000
 
-static void checkUp() {
-    //check interrupt
+static void checkUp(S_SEARCHINFO *info) {
+    if(info->timeset == TRUE && getTimeMs() > info->stop) {
+        info->stopped = TRUE;
+    }
+
+    ReadInput(info);
 }
 
 static void pickNextMove(int moveNum, S_MOVELIST *list) {
@@ -25,13 +29,16 @@ static void pickNextMove(int moveNum, S_MOVELIST *list) {
 
 static int isRepetition(const S_BOARD *pos) {
     int index = 0;
+    int times = 0;
 
     for(index = pos->histPly - pos->fiftyMove; index<pos->histPly-1; index++) {
 
         ASSERT(index >= 0 && index < MAXGAMEMOVES);
 
         if(pos->posKey == pos->history[index].posKey) {
-            return TRUE;
+            if(++times >= 2) { //if its repeated more than twice a third repetition is a draw
+                return TRUE;
+            }
         }
     }
     return FALSE;
@@ -66,15 +73,85 @@ static void clearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 
 
 static int quiescence(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta) {
-    return 0;
+    ASSERT(checkBoard(pos));
+    if((info->nodes & 2047) == 0) {
+        checkUp(info);
+    }
+
+    info->nodes++;
+
+    if(isRepetition(pos) || pos->fiftyMove >= 100) {
+        return 0;
+    }
+    if(pos->ply > MAXDEPTH - 1) {
+        return eval(pos);
+    }
+
+    int score = eval(pos);
+
+    if(score >= beta) {
+        return beta;
+    }
+
+    if(score > alpha) {
+        alpha = score;
+    }
+
+    S_MOVELIST list[1];
+    generateAllCaps(pos, list);
+
+    int moveNum = 0;
+    int legal = 0;
+    int oldAlpha = alpha;
+    int bestMove = NOMOVE;
+    score = -INFINITE;
+    int pvMove = probePvTable(pos);
+
+    for(moveNum = 0; moveNum < list->count; moveNum++) {
+
+        pickNextMove(moveNum, list);
+
+        if(!makeMove(pos, list->moves[moveNum].move)) {
+            continue;
+        }
+
+        legal++;
+        score = -quiescence(pos, info, -beta, -alpha);
+
+        takeMove(pos);
+        if(info->stopped == TRUE) {
+            return 0;
+        }
+        if(score > alpha) {
+            if(score >= beta) {
+                if(legal == 1) {
+                    info->fhf++;
+                }
+                info->fh++;
+
+                return beta;
+            }
+            alpha = score;
+            bestMove = list->moves[moveNum].move;
+        }
+    }
+
+    if(alpha != oldAlpha) {
+        storePvMove(pos, bestMove);
+    }
+
+    return alpha;
 }
 
 static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int depth, int doNull) {
     ASSERT(checkBoard(pos));
 
     if(depth == 0) {
-        info->nodes++;
-        return eval(pos);
+        return quiescence(pos, info, alpha, beta);
+    }
+
+    if((info->nodes & 2047) == 0) {
+        checkUp(info);
     }
 
     info->nodes++;
@@ -95,6 +172,16 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
     int oldAlpha = alpha;
     int bestMove = NOMOVE;
     int score = -INFINITE;
+    int pvMove = probePvTable(pos);
+
+    if(pvMove != NOMOVE) {
+        for(moveNum = 0; moveNum < list->count; moveNum++) {
+            if(list->moves[moveNum].move == pvMove) {
+                list->moves[moveNum].score = 2000000;
+                break;
+            }
+        }
+    }
 
     for(moveNum = 0; moveNum < list->count; moveNum++) {
 
@@ -108,16 +195,30 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
         score = -alphabeta(pos, info, -beta, -alpha, depth-1, TRUE);
 
         takeMove(pos);
+
+        if(info->stopped == TRUE) {
+            return 0;
+        }
+
         if(score > alpha) {
             if(score >= beta) {
                 if(legal == 1) {
                     info->fhf++;
                 }
                 info->fh++;
+
+                if(list->moves[moveNum].move & MFLAGCAP) {
+                    pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
+                    pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
+                }
+
                 return beta;
             }
             alpha = score;
             bestMove = list->moves[moveNum].move;
+            if(!(list->moves[moveNum].move & MFLAGCAP)) {
+                pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
+            }
         }
     }
 
@@ -142,18 +243,23 @@ void searchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
     int currentDepth = 0;
     int pvMoves = 0;
     int pvNum = 0;
+
     clearForSearch(pos, info);
     for(currentDepth = 1; currentDepth <= info->depth; currentDepth++) {
         // alpha	 beta
         bestScore = alphabeta(pos, info, -INFINITE, INFINITE, currentDepth, TRUE);
+
+        if(info->stopped == TRUE) {
+            break;
+        }
 
         // out of time?
 
         pvMoves = getPvLine(pos, currentDepth);
         bestMove = pos->pvarray[0];
 
-        printf("Depth:%d score:%d move:%s nodes:%ld ",
-               currentDepth,bestScore,prmove(bestMove),info->nodes);
+        printf("info score cp %d depth %d nodes %ld time %ld ",
+               bestScore, currentDepth,info->nodes, getTimeMs()-info->start);
 
         pvMoves = getPvLine(pos, currentDepth);
         printf("pv");
@@ -161,6 +267,9 @@ void searchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
             printf(" %s",prmove(pos->pvarray[pvNum]));
         }
         printf("\n");
-        printf("Ordering:%.2f\n",(info->fhf/info->fh));
+        //printf("Ordering:%.2f\n",(info->fhf/info->fh));
     }
+
+    //info score cp 13 depth 1 nodes 13 time 15 pv f1b5
+    printf("bestmove %s\n", prmove(bestMove));
 }
