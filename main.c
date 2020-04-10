@@ -1,11 +1,22 @@
 #include "defs.h"
+#include <string.h>
 
-#define WAC1 "r1b1k2r/ppppnppp/2n2q2/2b5/3NP3/2P1B3/PP3PPP/RN1QKB1R w KQkq - 0 1"
 
 int main(void) {
 
     init();
-    uciLoop();
+    S_BOARD board[1];
+    S_SEARCHINFO info[1];
+    info->quit = FALSE;
+    board->hashtable->hashTable = NULL;
+    initHashTable(board->hashtable, 64);
+
+#ifndef CONSOLE
+    uciLoop(board, info);
+#else
+    consoleLoop(board, info);
+#endif
+    free(board->hashtable->hashTable);
 
     return 0;
 

@@ -4,6 +4,7 @@
 #define HASH_CA (pos->posKey ^= (castleKeys[(pos->castlePerm)]))
 #define HASH_SIDE (pos->posKey ^= (sideKey))
 #define HASH_EP (pos->posKey ^= (pieceKeys[EMPTY][pos->enPas]))
+#define INCHECK (sqAttacked(pos->kingSq[pos->side], pos->side^1, pos))
 
 const int castlePerm[120] = {
         15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
@@ -297,6 +298,44 @@ void takeMove(S_BOARD *pos) {
     }
     ASSERT(checkBoard(pos));
 
+}
 
+void makeNullMove(S_BOARD *pos) {
+    ASSERT(checkBoard(pos));
+    ASSERT(!INCHECK);
 
+    pos->ply++;
+    pos->history[pos->histPly].posKey = pos->posKey;
+
+    if(pos->enPas != NO_SQ) HASH_EP;
+
+    pos->history[pos->histPly].move = NOMOVE;
+    pos->history[pos->histPly].fiftyMove = pos->fiftyMove;
+    pos->history[pos->histPly].enPas = pos->enPas;
+    pos->history[pos->histPly].castlePerm = pos->castlePerm;
+    pos->enPas = NO_SQ;
+
+    pos->side ^= 1;
+    pos->histPly++;
+    HASH_SIDE;
+
+    ASSERT(checkBoard(pos));
+}
+
+void takeNullMove(S_BOARD *pos) {
+    ASSERT(checkBoard(pos));
+
+    pos->histPly--;
+    pos->ply--;
+    if(pos-> enPas != NO_SQ) HASH_EP;
+
+    pos->castlePerm = pos->history[pos->histPly].castlePerm;
+    pos->fiftyMove = pos->history[pos->histPly].fiftyMove;
+    pos->enPas = pos->history[pos->histPly].enPas;
+
+    if(pos->enPas != NO_SQ) HASH_EP;
+
+    pos->side ^= 1;
+    HASH_SIDE;
+    ASSERT(checkBoard(pos));
 }

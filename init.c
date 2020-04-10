@@ -1,12 +1,6 @@
 
 #include "defs.h"
 
-#define RAND_64  ( (u64)rand() | \
-                   (u64)rand() << 15 | \
-                   (u64)rand() << 30 | \
-                   (u64)rand() << 45 | \
-                   ((u64)rand() & 0xf) << 60)
-
 int sq120tosq64[BRD_SQ_NUM];
 int sq64tosq120[64];
 u64 setMask[64];
@@ -18,6 +12,83 @@ u64 castleKeys[16];
 
 int filesBrd[BRD_SQ_NUM];
 int ranksBrd[BRD_SQ_NUM];
+
+u64 fileBBMask[8];
+u64 rankBBMask[8];
+
+u64 blackPassedMask[64];
+u64 whitePassedMask[64];
+u64 isolatedMask[64];
+
+static void initEvalMasks() {
+    int sq, tsq, r, f;
+
+    for(sq = 0; sq < 8; ++sq) {
+        fileBBMask[sq] = 0ULL;
+        rankBBMask[sq] = 0ULL;
+    }
+
+    for(r = RANK_8; r >= RANK_1; r--) {
+        for (f = FILE_A; f <= FILE_H; f++) {
+            sq = r * 8 + f;
+            fileBBMask[f] |= (1ULL << sq);
+            rankBBMask[r] |= (1ULL << sq);
+        }
+    }
+
+    for(sq = 0; sq < 64; ++sq) {
+        isolatedMask[sq] = 0ULL;
+        whitePassedMask[sq] = 0ULL;
+        blackPassedMask[sq] = 0ULL;
+    }
+
+    for(sq = 0; sq < 64; ++sq) {
+        tsq = sq + 8;
+
+        while(tsq < 64) {
+            whitePassedMask[sq] |= (1ULL << tsq);
+            tsq += 8;
+        }
+
+        tsq = sq - 8;
+        while(tsq >= 0) {
+            blackPassedMask[sq] |= (1ULL << tsq);
+            tsq -= 8;
+        }
+
+        if(filesBrd[SQ120(sq)] > FILE_A) {
+            isolatedMask[sq] |= fileBBMask[filesBrd[SQ120(sq)] - 1];
+
+            tsq = sq + 7;
+            while(tsq < 64) {
+                whitePassedMask[sq] |= (1ULL << tsq);
+                tsq += 8;
+            }
+
+            tsq = sq - 9;
+            while(tsq >= 0) {
+                blackPassedMask[sq] |= (1ULL << tsq);
+                tsq -= 8;
+            }
+        }
+
+        if(filesBrd[SQ120(sq)] < FILE_H) {
+            isolatedMask[sq] |= fileBBMask[filesBrd[SQ120(sq)] + 1];
+
+            tsq = sq + 9;
+            while(tsq < 64) {
+                whitePassedMask[sq] |= (1ULL << tsq);
+                tsq += 8;
+            }
+
+            tsq = sq - 7;
+            while(tsq >= 0) {
+                blackPassedMask[sq] |= (1ULL << tsq);
+                tsq -= 8;
+            }
+        }
+    }
+}
 
 static void initFilesRanksBrd() {
     int index = 0;
@@ -40,17 +111,31 @@ static void initFilesRanksBrd() {
 
 }
 
+static u64 rand64() {
+
+    // http://vigna.di.unimi.it/ftp/papers/xorshift.pdf
+
+    static u64 seed = 1070372ull;
+
+    seed ^= seed >> 12;
+    seed ^= seed << 25;
+    seed ^= seed >> 27;
+
+    return seed * 2685821657736338717ull;
+
+}
+
 static void initHashKeys() {
     int index = 0;
     int index2 = 0;
     for(index = 0; index < 13; index++) {
         for(index2 = 0; index2 < 120; index2++) {
-            pieceKeys[index][index2] = RAND_64;
+            pieceKeys[index][index2] = rand64();
         }
     }
-    sideKey = RAND_64;
+    sideKey = rand64();
     for(index = 0; index < 16; index++) {
-        castleKeys[index] = RAND_64;
+        castleKeys[index] = rand64();
     }
 }
 
@@ -96,6 +181,7 @@ void init() {
     initBitMasks();
     initHashKeys();
     initFilesRanksBrd();
+    initEvalMasks();
     initMvvLva();
 }
 

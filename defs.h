@@ -7,6 +7,8 @@
 
 //#define DEBUG
 
+//#define CONSOLE
+
 #ifndef DEBUG
 #define ASSERT(n)
 #else
@@ -24,21 +26,24 @@ typedef unsigned long long u64;
 
 /* Engine Info */
 
-#define NAME "Bad Chess Engine 1.0"
+#define NAME "Bad Chess Engine 0.4"
 
 #define BRD_SQ_NUM 120
 
 #define MAXGAMEMOVES 2048
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 100
+#define INFINITE 30000
+#define ISMATE (INFINITE - MAXDEPTH)
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK }; //piece values
 enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
 enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
-//coordinate values
 enum { WHITE, BLACK, BOTH };
+
+//coordinate values
 
 enum {
     A1 = 21, B1, C1, D1, E1, F1, G1, H1,
@@ -67,15 +72,24 @@ typedef struct {
 
 } S_UNDO;
 
+enum { HFNONE, HFALPHA, HFBETA, HFEXACT };
+
 typedef struct {
     u64 posKey;
     int move;
-} S_PVENTRY;
+    int score;
+    int depth;
+    int flags;
+} S_HASHENTRY;
 
 typedef struct {
-    S_PVENTRY *pTable;
+    S_HASHENTRY *hashTable;
     int numEntries;
-} S_PVTABLE;
+    int newWrite;
+    int overwrite;
+    int hit;
+    int cut;
+} S_HASHTABLE;
 
 typedef struct {
     int move;
@@ -125,7 +139,7 @@ typedef struct {
     //piece list
     int pList[13][10];
 
-    S_PVTABLE pvtable[1];
+    S_HASHTABLE hashtable[1];
     int pvarray[MAXDEPTH];
 
     int searchHistory[13][BRD_SQ_NUM];
@@ -140,6 +154,7 @@ typedef struct {
     int depthset;
     int movestogo;
     int timeset;
+    int nullCut;
 
     long nodes;
 
@@ -148,6 +163,9 @@ typedef struct {
 
     float fh;
     float fhf;
+
+    int GAME_MODE;
+    int POST_THINKING;
 
 } S_SEARCHINFO;
 
@@ -179,6 +197,7 @@ typedef struct {
 #define IsKi(p) (pieceKing[(p)])
 #define MOVE(f,t,ca,pro,fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
 #define SQOFFBOARD(sq) (filesBrd[(sq)]==OFFBOARD)
+#define MIRROR64(sq) (Mirror64[(sq)])
 
 /* Globals */
 
@@ -209,6 +228,13 @@ extern int pieceRookQueen[13];
 extern int pieceBishopQueen[13];
 extern int pieceSlides[13];
 extern int piecePawn[13];
+extern int Mirror64[64];
+
+extern u64 fileBBMask[8];
+extern u64 rankBBMask[8];
+extern u64 blackPassedMask[64];
+extern u64 whitePassedMask[64];
+extern u64 isolatedMask[64];
 
 /* Functions */
 //hashkeys.c
@@ -222,6 +248,7 @@ extern int parseFEN(char *fen, S_BOARD *pos);
 extern void printBoard(const S_BOARD *pos);
 extern void updateListsMaterial(S_BOARD *pos);
 extern int checkBoard(const S_BOARD *pos);
+extern void mirrorBoard(S_BOARD *pos);
 
 //init.c
 
@@ -251,7 +278,7 @@ extern int sideValid(const int side);
 extern int fileRankValid(const int fr);
 extern int pieceValidEmpty(const int pce);
 extern int pieceValid(const int pce);
-//extern void mirrorEvalTest(S_BOARD *pos);
+extern void mirrorEvalTest(S_BOARD *pos);
 extern int sqIs120(const int sq);
 extern int pceValidEmptyOffbrd(const int pce);
 //extern int moveListOk(const S_MOVELIST *list,  const S_BOARD *pos);
@@ -265,6 +292,8 @@ extern void generateAllCaps(const S_BOARD *pos, S_MOVELIST *movelist);
 //makemove.c
 extern int makeMove(S_BOARD *pos, int move);
 extern void takeMove(S_BOARD *pos);
+extern void makeNullMove(S_BOARD *pos);
+extern void takeNullMove(S_BOARD *pos);
 
 //perft.c
 extern void perftTest(S_BOARD *pos, int depth);
@@ -277,18 +306,22 @@ extern long getTimeMs();
 extern void ReadInput(S_SEARCHINFO *info);
 
 //pvtable.c
-extern void initPvTable(S_PVTABLE *table);
-extern void storePvMove(const S_BOARD *pos, const int move);
-extern int probePvTable(const S_BOARD *pos);
+extern void initHashTable(S_HASHTABLE *table, const int MB);
+extern void storeHashEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth);
+extern int probeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int depth);
 extern int getPvLine(S_BOARD *pos, const int depth);
-extern void clearPvTable(S_PVTABLE *table);
+extern void clearHashTable(S_HASHTABLE *table);
+extern int probePvMove(const S_BOARD *pos);
 
 //evaluate.c
 extern int eval(const S_BOARD *pos);
 extern int materialDraw(const S_BOARD *pos);
 
 //uci.c
-void uciLoop();
+void uciLoop(S_BOARD *pos, S_SEARCHINFO *info);
+void consoleLoop(S_BOARD *pos, S_SEARCHINFO *info);
 
+//./polyglot/polybook.c
+extern u64 polykeyFromBoard(S_BOARD *board);
 
 #endif //BCE_DEFS_H

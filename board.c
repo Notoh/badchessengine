@@ -283,3 +283,45 @@ int checkBoard(const S_BOARD *pos) {
     return TRUE;
 
 }
+
+void mirrorBoard(S_BOARD *pos) {
+    int tempPieces[64];
+    int tempSide = pos->side^1;
+    int swapPiece[13] = { EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK };
+    int tempCastle = 0;
+    int tempEnPas = NO_SQ;
+
+    int sq;
+    int tp;
+
+    if(pos->castlePerm & WSCA) tempCastle |= BSCA;
+    if(pos->castlePerm & WLCA) tempCastle |= BLCA;
+
+    if(pos->castlePerm & BSCA) tempCastle |= WSCA;
+    if(pos->castlePerm & BLCA) tempCastle |= WLCA;
+
+    if(pos->enPas != NO_SQ) {
+        tempEnPas = SQ120(Mirror64[SQ64(pos->enPas)]);
+    }
+
+    for(sq = 0; sq < 64; sq++) {
+        tempPieces[sq] = pos->pieces[SQ120(Mirror64[sq])];
+    }
+
+    resetBoard(pos);
+
+    for(sq = 0; sq < 64; sq++) {
+        tp = swapPiece[tempPieces[sq]];
+        pos->pieces[SQ120(sq)] = tp;
+    }
+
+    pos->side = tempSide;
+    pos->castlePerm = tempCastle;
+    pos->enPas = tempEnPas;
+
+    pos->posKey = generatePosKey(pos);
+
+    updateListsMaterial(pos);
+
+    ASSERT(checkBoard(pos));
+}

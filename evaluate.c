@@ -1,9 +1,9 @@
 #include "defs.h"
 
 const int PawnIsolated = -10;
-const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 200 };
-const int RookOpenFile = 10;
-const int RookSemiOpenFile = 5;
+const int PawnPassed[8] = { 0, 5, 10, 20, 35, 80, 200, 700 };
+const int RookOpenFile = 12;
+const int RookSemiOpenFile = 6;
 const int QueenOpenFile = 5;
 const int QueenSemiOpenFile = 3;
 const int BishopPair = 30;
@@ -64,8 +64,8 @@ const int KingE[64] = {
 };
 
 const int KingO[64] = {
-        0	,	5	,	5	,	-10	,	-10	,	0	,	10	,	5	,
-        -30	,	-30	,	-30	,	-30	,	-30	,	-30	,	-30	,	-30	,
+        0	,	7	,	5	,	-10	,	-10	,	2	,	10	,	9	,
+        -30	,	-30	,	-30	,	-30	,	-30	,	-30	,	-5	,	-9	,
         -50	,	-50	,	-50	,	-50	,	-50	,	-50	,	-50	,	-50	,
         -70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,
         -70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,
@@ -73,18 +73,7 @@ const int KingO[64] = {
         -70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,
         -70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70
 };
-const int Mirror64[64] = {
-        56	,	57	,	58	,	59	,	60	,	61	,	62	,	63	,
-        48	,	49	,	50	,	51	,	52	,	53	,	54	,	55	,
-        40	,	41	,	42	,	43	,	44	,	45	,	46	,	47	,
-        32	,	33	,	34	,	35	,	36	,	37	,	38	,	39	,
-        24	,	25	,	26	,	27	,	28	,	29	,	30	,	31	,
-        16	,	17	,	18	,	19	,	20	,	21	,	22	,	23	,
-        8	,	9	,	10	,	11	,	12	,	13	,	14	,	15	,
-        0	,	1	,	2	,	3	,	4	,	5	,	6	,	7
-};
 
-#define MIRROR64(sq) (Mirror64[(sq)])
 
 int materialDraw(const S_BOARD *pos) {
 
@@ -129,6 +118,14 @@ int eval(const S_BOARD *pos) {
         ASSERT(sqOnBoard(sq));
         ASSERT(SQ64(sq) >= 0 && SQ64(sq) <= 63);
         score += PawnTable[SQ64(sq)];
+
+        if((isolatedMask[SQ64(sq)] & pos->pawns[WHITE]) == 0) {
+            score += PawnIsolated;
+        }
+
+        if((whitePassedMask[SQ64(sq)] & pos->pawns[BLACK]) == 0) {
+            score += PawnPassed[ranksBrd[sq]];
+        }
     }
 
     pce = bP;
@@ -137,6 +134,14 @@ int eval(const S_BOARD *pos) {
         ASSERT(sqOnBoard(sq));
         ASSERT(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
         score -= PawnTable[MIRROR64(SQ64(sq))];
+
+        if((isolatedMask[SQ64(sq)] & pos->pawns[BLACK]) == 0) {
+            score -= PawnIsolated;
+        }
+
+        if((blackPassedMask[SQ64(sq)] & pos->pawns[WHITE]) == 0) {
+            score -= PawnPassed[7-ranksBrd[sq]];
+        }
     }
 
     pce = wN;
@@ -179,7 +184,13 @@ int eval(const S_BOARD *pos) {
         score += RookTable[SQ64(sq)];
 
         ASSERT(fileRankValid(filesBrd[sq]));
+        if(!(pos->pawns[BOTH] & fileBBMask[filesBrd[sq]])) {
+            score += RookOpenFile;
+        } else if(!(pos->pawns[WHITE] & fileBBMask[filesBrd[sq]])) {
+            score += RookSemiOpenFile;
+        }
     }
+
     pce = bR;
     for(pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
         sq = pos->pList[pce][pceNum];
@@ -187,13 +198,41 @@ int eval(const S_BOARD *pos) {
         ASSERT(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
         score -= RookTable[MIRROR64(SQ64(sq))];
         ASSERT(fileRankValid(filesBrd[sq]));
+        if(!(pos->pawns[BOTH] & fileBBMask[filesBrd[sq]])) {
+            score -= RookOpenFile;
+        } else if(!(pos->pawns[BLACK] & fileBBMask[filesBrd[sq]])) {
+            score -= RookSemiOpenFile;
+        }
     }
+
+    pce = wQ;
+    for(pceNum = 0; pceNum < pos->pceNum[pce]; pceNum++) {
+        sq = pos->pList[pce][pceNum];
+        ASSERT(sqOnBoard(sq));
+        if(!(pos->pawns[BOTH] & fileBBMask[filesBrd[sq]])) {
+            score += QueenOpenFile;
+        } else if(!(pos->pawns[WHITE] & fileBBMask[filesBrd[sq]])) {
+            score += QueenSemiOpenFile;
+        }
+    }
+
+    pce = bQ;
+    for(pceNum = 0; pceNum < pos->pceNum[pce]; pceNum++) {
+        sq = pos->pList[pce][pceNum];
+        ASSERT(sqOnBoard(sq));
+        if(!(pos->pawns[BOTH] & fileBBMask[filesBrd[sq]])) {
+            score -= QueenOpenFile;
+        } else if(!(pos->pawns[BLACK] & fileBBMask[filesBrd[sq]])) {
+            score -= QueenSemiOpenFile;
+        }
+    }
+
     pce = wK;
     sq = pos->pList[pce][0];
     ASSERT(sqOnBoard(sq));
     ASSERT(SQ64(sq)>=0 && SQ64(sq)<=63);
 
-    if( (pos->material[BLACK] <= ENDGAME_MAT) ) {
+    if((pos->material[BLACK] <= ENDGAME_MAT)) {
         score += KingE[SQ64(sq)];
     } else {
         score += KingO[SQ64(sq)];
@@ -204,7 +243,7 @@ int eval(const S_BOARD *pos) {
     ASSERT(sqOnBoard(sq));
     ASSERT(MIRROR64(SQ64(sq))>=0 && MIRROR64(SQ64(sq))<=63);
 
-    if( (pos->material[WHITE] <= ENDGAME_MAT) ) {
+    if((pos->material[WHITE] <= ENDGAME_MAT)) {
         score -= KingE[MIRROR64(SQ64(sq))];
     } else {
         score -= KingO[MIRROR64(SQ64(sq))];
