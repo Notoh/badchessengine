@@ -1,5 +1,7 @@
 #include "defs.h"
 
+//TODO taper all of these
+
 const int PawnIsolated = -10;
 const int PawnPassed[8] = { 0, 5, 10, 20, 35, 80, 200, 700 };
 const int RookOpenFile = 12;
@@ -7,6 +9,8 @@ const int RookSemiOpenFile = 6;
 const int QueenOpenFile = 5;
 const int QueenSemiOpenFile = 3;
 const int BishopPair = 30;
+
+const int pieceVal[13] = { 0, 100, 325, 325, 550, 1000, 50000, 100, 325, 325, 550, 1000, 50000 };
 
 const int PawnTable[64] = {
         0	,	0	,	0	,	0	,	0	,	0	,	0	,	0	,

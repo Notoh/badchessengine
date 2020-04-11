@@ -213,22 +213,22 @@ extern char sideChar[];
 extern char rankChar[];
 extern char fileChar[];
 
-extern int pieceBig[13];
-extern int pieceMaj[13];
-extern int pieceMin[13];
-extern int pieceVal[13];
-extern int pieceCol[13];
+extern const int pieceBig[13];
+extern const int pieceMaj[13];
+extern const int pieceMin[13];
+extern const int pieceVal[13];
+extern const int pieceCol[13];
 
 extern int filesBrd[BRD_SQ_NUM];
 extern int ranksBrd[BRD_SQ_NUM];
 
-extern int pieceKnight[13];
-extern int pieceKing[13];
-extern int pieceRookQueen[13];
-extern int pieceBishopQueen[13];
-extern int pieceSlides[13];
-extern int piecePawn[13];
-extern int Mirror64[64];
+extern const int pieceKnight[13];
+extern const int pieceKing[13];
+extern const int pieceRookQueen[13];
+extern const int pieceBishopQueen[13];
+extern const int pieceSlides[13];
+extern const int piecePawn[13];
+extern const int Mirror64[64];
 
 extern u64 fileBBMask[8];
 extern u64 rankBBMask[8];
@@ -320,8 +320,5 @@ extern int materialDraw(const S_BOARD *pos);
 //uci.c
 void uciLoop(S_BOARD *pos, S_SEARCHINFO *info);
 void consoleLoop(S_BOARD *pos, S_SEARCHINFO *info);
-
-//./polyglot/polybook.c
-extern u64 polykeyFromBoard(S_BOARD *board);
 
 #endif //BCE_DEFS_H
