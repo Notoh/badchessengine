@@ -305,7 +305,7 @@ extern void searchPosition(S_BOARD *pos, S_SEARCHINFO *info);
 extern long getTimeMs();
 extern void ReadInput(S_SEARCHINFO *info);
 
-//pvtable.c
+//tt.c
 extern void initHashTable(S_HASHTABLE *table, const int MB);
 extern void storeHashEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth);
 extern int probeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int depth);
