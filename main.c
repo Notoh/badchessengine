@@ -1,4 +1,6 @@
-#include "defs.h"
+#include "init.h"
+#include "uci.h"
+#include "tt.h"
 #include <string.h>
 
 

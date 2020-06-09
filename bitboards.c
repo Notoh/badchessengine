@@ -1,4 +1,4 @@
-#include "defs.h"
+#include "bitboards.h"
 
 
 //magic pawn
@@ -9,21 +9,21 @@ const int BitTable[64] = {
         58, 20, 37, 17, 36, 8
 };
 
-int popBit(u64 *bb) {
-    u64 b = *bb ^ (*bb - 1);
+int popBit(uint64_t *bb) {
+    uint64_t b = *bb ^ (*bb - 1);
     unsigned int fold = (unsigned) ((b & 0xffffffff) ^ (b >> 32));
     *bb &= (*bb - 1);
     return BitTable[(fold * 0x783a9b23) >> 26];
 }
 
-int countBits(u64 b) {
+int countBits(uint64_t b) {
     int r;
     for(r = 0; b; r++, b &= b - 1);
     return r;
 }
 
-void printBitboard(u64 bb) {
-    u64 shiftMe = 1ULL;
+void printBitboard(uint64_t bb) {
+    uint64_t shiftMe = 1ULL;
 
     int rank = 0;
     int file = 0;

@@ -1,4 +1,4 @@
-#include "defs.h"
+#include "tt.h"
 
 int getPvLine(S_BOARD *pos, const int depth) {
     ASSERT(depth < MAXDEPTH);

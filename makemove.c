@@ -1,4 +1,4 @@
-#include "defs.h"
+#include "makemove.h"
 
 #define HASH_PCE(pce,sq) (pos->posKey ^= (pieceKeys[(pce)][(sq)]))
 #define HASH_CA (pos->posKey ^= (castleKeys[(pos->castlePerm)]))

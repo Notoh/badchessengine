@@ -1,4 +1,4 @@
-#include "defs.h"
+#include "movegen.h"
 
 
 const int loopSlidePce[8] = {wB, wR, wQ, 0, bB, bR, bQ, 0};

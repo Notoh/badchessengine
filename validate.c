@@ -1,5 +1,4 @@
-#include "defs.h"
-#include <string.h>
+#include "validate.h"
 
 int sqIs120(const int sq) {
     return (sq>=0 && sq<120);
@@ -30,8 +29,7 @@ int pieceValid(const int pce) {
 }
 
 void mirrorEvalTest(S_BOARD *pos) {
-    FILE *file;
-    file = fopen("mirror.epd","r");
+    FILE *file = fopen("mirror.epd","r");
     char lineIn [1024];
     int ev1 = 0; int ev2 = 0;
     int positions = 0;

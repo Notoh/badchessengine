@@ -1,24 +1,24 @@
 
-#include "defs.h"
+#include "init.h"
 
 int sq120tosq64[BRD_SQ_NUM];
 int sq64tosq120[64];
-u64 setMask[64];
-u64 clearMask[64];
+uint64_t setMask[64];
+uint64_t clearMask[64];
 
-u64 pieceKeys[13][120];
-u64 sideKey;
-u64 castleKeys[16];
+uint64_t pieceKeys[13][120];
+uint64_t sideKey;
+uint64_t castleKeys[16];
 
 int filesBrd[BRD_SQ_NUM];
 int ranksBrd[BRD_SQ_NUM];
 
-u64 fileBBMask[8];
-u64 rankBBMask[8];
+uint64_t fileBBMask[8];
+uint64_t rankBBMask[8];
 
-u64 blackPassedMask[64];
-u64 whitePassedMask[64];
-u64 isolatedMask[64];
+uint64_t blackPassedMask[64];
+uint64_t whitePassedMask[64];
+uint64_t isolatedMask[64];
 
 static void initEvalMasks() {
     int sq, tsq, r, f;
@@ -111,11 +111,11 @@ static void initFilesRanksBrd() {
 
 }
 
-static u64 rand64() {
+static uint64_t rand64() {
 
     // http://vigna.di.unimi.it/ftp/papers/xorshift.pdf
 
-    static u64 seed = 1070372ull;
+    static uint64_t seed = 1070372ull;
 
     seed ^= seed >> 12;
     seed ^= seed << 25;

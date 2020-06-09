@@ -1,4 +1,4 @@
-#include "defs.h"
+#include "board.h"
 
 void resetBoard(S_BOARD *pos) {
 
@@ -213,7 +213,7 @@ int checkBoard(const S_BOARD *pos) {
 
     int sq64, t_piece, t_pce_num, sq120, colour, pcount;
 
-    u64 t_pawns[3] = {0ULL, 0ULL, 0ULL};
+    uint64_t t_pawns[3] = {0ULL, 0ULL, 0ULL};
 
     t_pawns[WHITE] = pos->pawns[WHITE];
     t_pawns[BLACK] = pos->pawns[BLACK];

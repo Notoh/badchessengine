@@ -1,5 +1,4 @@
-#include "defs.h"
-#include <string.h>
+#include "uci.h"
 
 #define INPUTBUFFER 400 * 6
 

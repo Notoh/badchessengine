@@ -1,4 +1,4 @@
-#include "defs.h"
+#include "io.h"
 
 char *prsq(const int sq) {
 

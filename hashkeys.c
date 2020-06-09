@@ -1,8 +1,8 @@
-#include "defs.h"
+#include "hashkeys.h"
 
-u64 generatePosKey(const S_BOARD *pos) {
+uint64_t generatePosKey(const S_BOARD *pos) {
     int sq = 0;
-    u64 finalKey = 0;
+    uint64_t finalKey = 0;
     int piece = EMPTY;
 
     //pieces

@@ -1,7 +1,6 @@
 // perft.c
 
-#include "defs.h"
-#include "stdio.h"
+#include "perft.h"
 
 #define PERFTFEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 
@@ -49,7 +48,7 @@ void perftTest(S_BOARD *pos, int depth) {
     int moveNum = 0;
     for(moveNum = 0; moveNum < list->count; moveNum++) {
         move = list->moves[moveNum].move;
-        if ( !makeMove(pos,move))  {
+        if (!makeMove(pos,move))  {
             continue;
         }
 

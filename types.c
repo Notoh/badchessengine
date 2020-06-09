@@ -1,9 +1,4 @@
-#include "defs.h"
-
-char pceChar[] = ".PNBRQKpnbrqk";
-char sideChar[] = "wb-";
-char rankChar[] = "12345678";
-char fileChar[] = "abcdefgh";
+#include "types.h"
 
 const int pieceBig[13] = { FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE};
 const int pieceMaj[13] = { FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE};
@@ -15,6 +10,7 @@ const int pieceKing[13] = { FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALS
 const int pieceRookQueen[13] = { FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE };
 const int pieceBishopQueen[13] = { FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE };
 const int pieceSlides[13] = { FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE };
+
 const int Mirror64[64] = {
         56	,	57	,	58	,	59	,	60	,	61	,	62	,	63	,
         48	,	49	,	50	,	51	,	52	,	53	,	54	,	55	,
@@ -25,3 +21,8 @@ const int Mirror64[64] = {
         8	,	9	,	10	,	11	,	12	,	13	,	14	,	15	,
         0	,	1	,	2	,	3	,	4	,	5	,	6	,	7
 };
+
+const char* pceChar = ".PNBRQKpnbrqk";
+const char* sideChar = "wb-";
+const char* rankChar = "12345678";
+const char* fileChar = "abcdefgh";
