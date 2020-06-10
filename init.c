@@ -1,5 +1,5 @@
-
 #include "init.h"
+#include "movegen.h"
 
 int sq120tosq64[BRD_SQ_NUM];
 int sq64tosq120[64];

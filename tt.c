@@ -1,4 +1,6 @@
 #include "tt.h"
+#include <stdlib.h>
+#include "movegen.h"
 
 int getPvLine(S_BOARD *pos, const int depth) {
     ASSERT(depth < MAXDEPTH);

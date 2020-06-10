@@ -1,4 +1,5 @@
 #include "evaluate.h"
+#include <stdlib.h>
 
 //TODO taper all of these
 

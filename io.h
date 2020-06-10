@@ -6,7 +6,6 @@
 #define BADCHESSENGINE_IO_H
 
 #include "types.h"
-#include "movegen.h"
 
 char *prmove(const int move);
 char *prsq(const int sq);

@@ -5,7 +5,6 @@
 #ifndef BADCHESSENGINE_BITBOARDS_H
 #define BADCHESSENGINE_BITBOARDS_H
 
-#include <stdio.h>
 #include "types.h"
 
 #define POP(b) popBit(b)

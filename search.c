@@ -1,4 +1,8 @@
 #include "search.h"
+#include "tt.h"
+#include "io.h"
+#include "util.h"
+#include "evaluate.h"
 
 static void checkUp(S_SEARCHINFO *info) {
     if(info->timeset == TRUE && getTimeMs() > info->stop) {

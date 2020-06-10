@@ -1,6 +1,7 @@
 #include "init.h"
 #include "uci.h"
 #include "tt.h"
+#include <stdlib.h>
 #include <string.h>
 
 

@@ -6,8 +6,6 @@
 #define BADCHESSENGINE_MAKEMOVE_H
 
 #include "types.h"
-#include "attack.h"
-#include "bitboards.h"
 
 int makeMove(S_BOARD *pos, int move);
 void takeMove(S_BOARD *pos);

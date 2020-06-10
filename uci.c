@@ -1,4 +1,17 @@
 #include "uci.h"
+#include "board.h"
+#include "validate.h"
+#include "util.h"
+#include "search.h"
+#include "movegen.h"
+#include "makemove.h"
+#include "attack.h"
+#include "evaluate.h"
+#include "io.h"
+#include "tt.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define INPUTBUFFER 400 * 6
 

@@ -1,4 +1,6 @@
 #include "board.h"
+#include "bitboards.h"
+#include <stdio.h>
 
 void resetBoard(S_BOARD *pos) {
 

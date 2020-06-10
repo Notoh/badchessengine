@@ -1,4 +1,9 @@
 #include "validate.h"
+#include "board.h"
+#include "evaluate.h"
+#include <string.h>
+#include <stdio.h>
+
 
 int sqIs120(const int sq) {
     return (sq>=0 && sq<120);

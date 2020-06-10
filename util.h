@@ -5,7 +5,6 @@
 #ifndef BADCHESSENGINE_UTIL_H
 #define BADCHESSENGINE_UTIL_H
 
-#include <stdio.h>
 #include "types.h"
 
 long getTimeMs();

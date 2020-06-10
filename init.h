@@ -6,7 +6,6 @@
 #define BADCHESSENGINE_INIT_H
 
 #include "types.h"
-#include "movegen.h"
 
 void init();
 

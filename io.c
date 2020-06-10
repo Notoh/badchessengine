@@ -1,4 +1,6 @@
 #include "io.h"
+#include "movegen.h"
+#include <stdio.h>
 
 char *prsq(const int sq) {
 

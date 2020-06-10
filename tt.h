@@ -5,9 +5,7 @@
 #ifndef BADCHESSENGINE_TT_H
 #define BADCHESSENGINE_TT_H
 
-#include <stdlib.h>
 #include "types.h"
-#include "movegen.h"
 
 void initHashTable(S_HASHTABLE *table, const int MB);
 void storeHashEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth);

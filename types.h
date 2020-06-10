@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#define NAME "Bad Chess Engine 0.4"
+#define NAME "Bad Chess Engine 0.4.1"
 
 #define BRD_SQ_NUM 120
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

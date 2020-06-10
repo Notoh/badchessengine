@@ -6,11 +6,6 @@
 #define BADCHESSENGINE_PERFT_H
 
 #include "types.h"
-#include "util.h"
-#include "io.h"
-#include "makemove.h"
-#include "movegen.h"
-#include "board.h"
 
 void perftTest(S_BOARD *pos, int depth);
 

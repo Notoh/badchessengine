@@ -6,7 +6,6 @@
 #define BADCHESSENGINE_MOVEGEN_H
 
 #include "types.h"
-#include "makemove.h"
 
 void generateAllMoves(const S_BOARD *pos, S_MOVELIST *movelist);
 int moveExists(S_BOARD *pos, const int move);

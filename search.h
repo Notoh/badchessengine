@@ -6,10 +6,6 @@
 #define BADCHESSENGINE_SEARCH_H
 
 #include "types.h"
-#include "tt.h"
-#include "io.h"
-#include "util.h"
-#include "evaluate.h"
 
 void searchPosition(S_BOARD *pos, S_SEARCHINFO *info);
 

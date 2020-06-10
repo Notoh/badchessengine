@@ -1,8 +1,6 @@
 #ifndef BADCHESSENGINE_VALIDATE_H
 #define BADCHESSENGINE_VALIDATE_H
 
-#include <string.h>
-#include <stdio.h>
 #include "types.h"
 
 int sqOnBoard(const int sq);
