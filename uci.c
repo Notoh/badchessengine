@@ -379,3 +379,38 @@ void consoleLoop(S_BOARD *pos, S_SEARCHINFO *info) {
         pos->ply=0;
     }
 }
+
+//from Weiss
+inline int mateScore(const int score) {
+    return score > 0 ? ((INFINITE - score) / 2) + 1
+                        : -((INFINITE + score) / 2);
+}
+
+//largely based on weiss
+void printThinking(const S_BOARD *pos, int depth, int score, long nodes, long elapsed, int pvMoves) {
+
+    //mate or centipawn score
+    char *type = abs(score) >= ISMATE ? "mate" : "cp";
+
+
+    score = abs(score) >= ISMATE ? mateScore(score)
+            : score;
+
+    int hash = hashFull(pos);
+    int nps = (int)(1000 * nodes / (elapsed + 1));
+
+    printf("info depth %d score %s %d time %ld nodes %ld nps %d hashfull %d pv", depth, type, score, elapsed, nodes, nps, hash);
+
+    for(int i = 0; i < pvMoves; i++) {
+        printf(" %s", prmove(pos->pvarray[i]));
+    }
+
+    printf("\n");
+    fflush(stdout);
+}
+
+void printConclusion(const S_BOARD *pos, int move) {
+    printf("bestmove %s", prmove(move));
+    printf("\n");
+    fflush(stdout);
+}

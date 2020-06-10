@@ -1,6 +1,8 @@
 #include "tt.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include "movegen.h"
+#include "makemove.h"
 
 int getPvLine(S_BOARD *pos, const int depth) {
     ASSERT(depth < MAXDEPTH);
@@ -132,9 +134,21 @@ int probePvMove(const S_BOARD *pos) {
     int index = pos->posKey % pos->hashtable->numEntries;
     ASSERT(index >= 0 && index <= pos->HashTable->numEntries - 1);
 
-    if( pos->hashtable->hashTable[index].posKey == pos->posKey ) {
+    if(pos->hashtable->hashTable[index].posKey == pos->posKey) {
         return pos->hashtable->hashTable[index].move;
     }
 
     return NOMOVE;
+}
+
+//based on weiss
+int hashFull(const S_BOARD *pos) {
+
+    int used = 0;
+    const int samples = 1000;
+    for(int i = 0; i < samples; i++) {
+        if (pos->hashtable->hashTable[i].move != NOMOVE)
+            used++;
+    }
+    return used / (samples / 1000);
 }

@@ -1,5 +1,6 @@
 #include "board.h"
 #include "bitboards.h"
+#include "hashkeys.h"
 #include <stdio.h>
 
 void resetBoard(S_BOARD *pos) {

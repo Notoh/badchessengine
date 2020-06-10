@@ -1,8 +1,14 @@
 #include "search.h"
 #include "tt.h"
+#include "uci.h"
 #include "io.h"
 #include "util.h"
 #include "evaluate.h"
+#include <stdio.h>
+#include "makemove.h"
+#include "movegen.h"
+#include "attack.h"
+#include <stdlib.h>
 
 static void checkUp(S_SEARCHINFO *info) {
     if(info->timeset == TRUE && getTimeMs() > info->stop) {
@@ -299,26 +305,14 @@ void searchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
         pvMoves = getPvLine(pos, currentDepth);
         bestMove = pos->pvarray[0];
 #ifndef CONSOLE
-        printf("info score cp %d depth %d nodes %ld time %ld ",
-                   bestScore, currentDepth,info->nodes, getTimeMs()-info->start);
+        printThinking(pos, currentDepth, bestScore, info->nodes, getTimeMs()-info->start, pvMoves);
 #else
         printf("score:%d depth:%d nodes:%ld time:%ld(ms) ", bestScore, currentDepth, info->nodes, getTimeMs()-info->start);
-#endif
-
-#ifndef CONSOLE
-            pvMoves = getPvLine(pos, currentDepth);
-            printf("pv");
-            for (pvNum = 0; pvNum < pvMoves; pvNum++) {
-                printf(" %s", prmove(pos->pvarray[pvNum]));
-            }
-            printf("\n");
-            //printf("Ordering:%.2f\n",(info->fhf/info->fh));
 #endif
     }
 
 #ifndef CONSOLE
-    //info score cp 13 depth 1 nodes 13 time 15 pv f1b5
-        printf("bestmove %s\n", prmove(bestMove));
+        printConclusion(pos, bestMove);
 #else
         printf("\n\n***!! BCE makes move %s !!***\n\n", prmove(bestMove));
         makeMove(pos, bestMove);

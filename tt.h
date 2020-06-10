@@ -13,6 +13,7 @@ int probeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 int getPvLine(S_BOARD *pos, const int depth);
 void clearHashTable(S_HASHTABLE *table);
 int probePvMove(const S_BOARD *pos);
+int hashFull(const S_BOARD *pos);
 
 
 #endif //BADCHESSENGINE_TT_H
