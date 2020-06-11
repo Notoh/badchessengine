@@ -8,5 +8,6 @@
 #include "types.h"
 
 int PSQT[13][64];
+void initPSQT();
 
 #endif //BADCHESSENGINE_PSQT_H

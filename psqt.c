@@ -74,13 +74,23 @@ static const int pieceSqValue[7][64] = {
 
 
 //based on Weiss
-static __attribute__((constructor)) void initPSQT() {
+void initPSQT() {
     for(int type = bP; type <= bK; type++) {
-        for(int sq = A1; sq <= H8; sq++) {
-            //Base piece value + piece square value
-            PSQT[type][SQ64(sq)] = -(pieceSqValue[BLACKTOWHITE(type)][SQ64(sq)] + pieceVal[type]);
-            //inverse for white
-            PSQT[BLACKTOWHITE(type)][MIRROR64(SQ64(sq))] = -PSQT[type][SQ64(sq)];
+        for(int rank = RANK_1;  rank <= RANK_8; rank++) {
+            for (int file = FILE_A; file <= FILE_H; file++) {
+                PSQT[type][SQ64(FR2SQ(file,rank))] = -(pieceSqValue[BLACKTOWHITE(type)][SQ64(FR2SQ(file, rank))] + pieceVal[type]);
+                PSQT[BLACKTOWHITE(type)][MIRROR64(SQ64(FR2SQ(file, rank)))] = -PSQT[type][SQ64(FR2SQ(file, rank))];
+            }
         }
+
     }
+    /*
+    for(int type = bP; type <= bK; type++) {
+        for(int sq = 0; sq <= 63; sq++) { //a1 to h8 from black's perspective
+            //Base piece value + piece square value
+            PSQT[type][sq] = -(pieceSqValue[BLACKTOWHITE(type)][sq] + pieceVal[type]);
+            //inverse for white
+            PSQT[BLACKTOWHITE(type)][MIRROR64(sq)] = -PSQT[type][sq];
+        }
+    }*/
 }

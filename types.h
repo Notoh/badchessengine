@@ -34,7 +34,7 @@
 
 #define MOVE(f,t,ca,pro,fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
 
-#define DEBUG
+//#define DEBUG
 
 
 #ifndef DEBUG
@@ -98,6 +98,9 @@ typedef struct Board {
     int enPas;
     int fiftyMove;
 
+    int basePhase;
+    int phase;
+
     int ply;
     int histPly;
 
@@ -109,7 +112,7 @@ typedef struct Board {
     int bigPce[2]; //not pawns
     int majPce[2]; //rooks + queen
     int minPce[2]; //bishops + knights
-    int material[2];
+    int material;
 
     S_UNDO history[MAXGAMEMOVES];
 
@@ -227,5 +230,6 @@ const int pieceRookQueen[13];
 const int pieceBishopQueen[13];
 const int pieceSlides[13];
 const int Mirror64[64];
+const int PhaseValue[13];
 
 #endif //BADCHESSENGINE_TYPES_H

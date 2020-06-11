@@ -115,6 +115,7 @@ static int evalPiece(const S_BOARD *pos, int side, int pieceType) {
             }
         }
     }
+
     return eval;
 }
 
@@ -148,22 +149,15 @@ int eval(const S_BOARD *pos) {
     if(materialDraw(pos))
         return 0;
 
-    int eval = pos->material[WHITE] - pos->material[BLACK];
+    int eval = pos->material;
 
     eval += evalPieces(pos);
 
     //interpolate eval by game phase, math from Ethereal
-    int phase = 24 - 4 * (pos->pceNum[wQ] + pos->pceNum[bQ])
-            - 2 * (pos->pceNum[wR] + pos->pceNum[bR])
-            - 1 * (pos->pceNum[wN] + pos->pceNum[bN] + pos->pceNum[wB] + pos->pceNum[bB]);
-    phase = (phase * 256 + 12) / 24;
 
-    eval = ((ScoreMG(eval) * phase)
-            +  (ScoreEG(eval) * (256 - phase)))
+    eval = ((ScoreMG(eval) * pos->phase)
+            +  (ScoreEG(eval) * (256 - pos->phase)))
            / 256;
 
-    //tempo after interp
-    eval += pos->side == WHITE ? Tempo : -Tempo;
-
-    return pos->side == WHITE ? eval : -eval;
+    return (pos->side == WHITE ? eval : -eval) + Tempo;
 }

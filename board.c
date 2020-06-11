@@ -3,6 +3,7 @@
 #include "hashkeys.h"
 #include "psqt.h"
 
+const int PhaseValue[13] = { 0, 0, 1, 1, 2, 4, 0, 1, 1, 2, 4, 0};
 
 void resetBoard(S_BOARD *pos) {
 
@@ -19,7 +20,6 @@ void resetBoard(S_BOARD *pos) {
         pos->bigPce[index] = 0;
         pos->majPce[index] = 0;
         pos->minPce[index] = 0;
-        pos->material[index] = 0;
     }
 
     for(index = 0; index < 3; index++) {
@@ -29,6 +29,8 @@ void resetBoard(S_BOARD *pos) {
     for(index = 0; index < 13; index++) {
         pos->pceNum[index] = 0;
     }
+
+    pos->material = 0;
 
     pos->kingSq[WHITE] = pos->kingSq[BLACK] = NO_SQ;
     pos->side = BOTH;
@@ -188,8 +190,9 @@ void updateListsMaterial(S_BOARD *pos) {
             if(pieceMaj[piece] == TRUE) pos->majPce[colour]++;
             if(pieceMin[piece] == TRUE) pos->minPce[colour]++;
 
-            pos->material[colour] += PSQT[piece][SQ64(sq)];
-
+            pos->material += PSQT[piece][SQ64(sq)];
+            pos->basePhase += PhaseValue[piece];
+            int sq64 = SQ64(sq);
             //piece list
             pos->pList[piece][pos->pceNum[piece]] = sq;
             pos->pceNum[piece]++;
@@ -206,6 +209,7 @@ void updateListsMaterial(S_BOARD *pos) {
             }
         }
     }
+    pos->phase = (pos->basePhase * 256 + 12) / 24;
 }
 
 int checkBoard(const S_BOARD *pos) {
@@ -213,7 +217,7 @@ int checkBoard(const S_BOARD *pos) {
     int t_bigPce[2] = {0, 0};
     int t_majPce[2] = {0, 0};
     int t_minPce[2] = {0, 0};
-    int t_material[2] = {0, 0};
+    int t_material = 0;
 
     int sq64, t_piece, t_pce_num, sq120, colour, pcount;
 
@@ -241,7 +245,7 @@ int checkBoard(const S_BOARD *pos) {
         if(pieceMaj[t_piece]) t_majPce[colour]++;
         if(pieceMin[t_piece]) t_minPce[colour]++;
 
-        t_material[colour] += PSQT[t_piece][sq64];
+        t_material += PSQT[t_piece][sq64];
     }
 
     for(t_piece = wP; t_piece <= bK; t_piece++) {
@@ -271,7 +275,7 @@ int checkBoard(const S_BOARD *pos) {
         ASSERT(pos->pieces[SQ120(sq64)] == bP || pos->pieces[SQ120(sq64)] == wP);
     }
 
-    ASSERT(t_material[WHITE] ==pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
+    ASSERT(t_material == pos->material);
     ASSERT(t_minPce[WHITE] ==pos->minPce[WHITE] && t_minPce[BLACK] == pos->minPce[BLACK]);
     ASSERT(t_majPce[WHITE] ==pos->majPce[WHITE] && t_majPce[BLACK] == pos->majPce[BLACK]);
     ASSERT(t_bigPce[WHITE] ==pos->bigPce[WHITE] && t_bigPce[BLACK] == pos->bigPce[BLACK]);
