@@ -381,7 +381,7 @@ void consoleLoop(S_BOARD *pos, S_SEARCHINFO *info) {
 }
 
 //from Weiss
-int mateScore(const int score) {
+static inline int mateScore(const int score) {
     return score > 0 ? ((INFINITE - score) / 2) + 1
                         : -((INFINITE + score) / 2);
 }

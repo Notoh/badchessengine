@@ -80,28 +80,42 @@ const int KingO[64] = {
 };
 
 
-int materialDraw(const S_BOARD *pos) {
+//based on logic from sjeng
+static int materialDraw(const S_BOARD *pos) {
 
     ASSERT(checkBoard(pos));
 
-    if (!pos->pceNum[wR] && !pos->pceNum[bR] && !pos->pceNum[wQ] && !pos->pceNum[bQ]) {
-        if (!pos->pceNum[bB] && !pos->pceNum[wB]) {
-            if (pos->pceNum[wN] < 3 && pos->pceNum[bN] < 3) {  return TRUE; }
-        } else if (!pos->pceNum[wN] && !pos->pceNum[bN]) {
-            if (abs(pos->pceNum[wB] - pos->pceNum[bB]) < 2) { return TRUE; }
-        } else if ((pos->pceNum[wN] < 3 && !pos->pceNum[wB]) || (pos->pceNum[wB] == 1 && !pos->pceNum[wN])) {
-            if ((pos->pceNum[bN] < 3 && !pos->pceNum[bB]) || (pos->pceNum[bB] == 1 && !pos->pceNum[bN]))  { return TRUE; }
+    //not a draw with pawns or queens
+    if (pos->pceNum[wP] || pos->pceNum[bP] || pos->pceNum[wQ] || pos->pceNum[bQ]) {
+        return FALSE;
+    }
+
+    //no rooks
+    if (!pos->pceNum[wR] && !pos->pceNum[bR]) {
+
+        //no bishops
+        if (!pos->pceNum[wB] && !pos->pceNum[bB]) {
+            //0-2 knights v king is draw
+            return pos->pceNum[wN] <= 2 && pos->pceNum[bN] <= 2;
+        } else if (!pos->pceNum[wN] && !pos->pceNum[bN]) { //no knights
+            //draw unless one side has 2 extra bishops
+            return abs(pos->pceNum[wB] - pos->pceNum[bB]) < 2;
+        } else if ((pos->pceNum[wN] <= 2 && pos->pceNum[bB] == 1) || (pos->pceNum[bN] <= 2 && pos->pceNum[wB] == 1)) {
+            return TRUE;
         }
-    } else if (!pos->pceNum[wQ] && !pos->pceNum[bQ]) {
-        if (pos->pceNum[wR] == 1 && pos->pceNum[bR] == 1) {
-            if ((pos->pceNum[wN] + pos->pceNum[wB]) < 2 && (pos->pceNum[bN] + pos->pceNum[bB]) < 2)	{ return TRUE; }
-        } else if (pos->pceNum[wR] == 1 && !pos->pceNum[bR]) {
-            if ((pos->pceNum[wN] + pos->pceNum[wB] == 0) && (((pos->pceNum[bN] + pos->pceNum[bB]) == 1) || ((pos->pceNum[bN] + pos->pceNum[bB]) == 2))) { return TRUE; }
-        } else if (pos->pceNum[bR] == 1 && !pos->pceNum[wR]) {
-            if ((pos->pceNum[bN] + pos->pceNum[bB] == 0) && (((pos->pceNum[wN] + pos->pceNum[wB]) == 1) || ((pos->pceNum[wN] + pos->pceNum[wB]) == 2))) { return TRUE; }
+    } else if (pos->pceNum[wR] == 1 && pos->pceNum[bR] == 1) { //1 rook vs 1 rook with 0-1 minors each is draw
+        return pos->pceNum[wN] + pos->pceNum[wB] <= 1 && pos->pceNum[bN] + pos->pceNum[bB] <= 1;
+    } else if (pos->pceNum[wR] + pos->pceNum[bR] == 1) { //1 rook draws vs 1-2 minors
+        if (pos->pceNum[wR]) {
+            return pos->pceNum[wR] + pos->pceNum[wN] + pos->pceNum[wB] == 1 && pos->pceNum[bB] + pos->pceNum[bN] >= 1 &&
+                   pos->pceNum[bB] + pos->pceNum[bN] <= 2;
+        } else {
+            return pos->pceNum[bR] + pos->pceNum[bN] + pos->pceNum[bB] == 1 && pos->pceNum[wB] + pos->pceNum[wN] >= 1 &&
+                   pos->pceNum[wB] + pos->pceNum[wN] <= 2;
         }
     }
     return FALSE;
+
 }
 
 #define ENDGAME_MAT (1 * pieceVal[wR] + 2 * pieceVal[wN] + 2 * pieceVal[wP] + pieceVal[wK])
