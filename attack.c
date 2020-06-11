@@ -1,4 +1,6 @@
 #include "attack.h"
+#include "board.h"
+#include "validate.h"
 
 const int knDir[8] = { -8, -19,	-21, -12, 8, 19, 21, 12 };
 const int rkDir[4] = {-1, -10, 1, 10};

@@ -1,6 +1,7 @@
 #include "evaluate.h"
 #include "psqt.h"
-#include <stdlib.h>
+#include "board.h"
+#include "validate.h"
 
 const int PawnIsolated = S(-5, -12);
 const int PawnPassed[8] = { S(0,0) , S(-9, 1), S(-16, 9), S(0, 30), S(25, 69), S(70, 105), S(110, 139), S(1000, 1000)};

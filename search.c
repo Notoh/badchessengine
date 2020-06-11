@@ -1,13 +1,13 @@
 #include "search.h"
 #include "tt.h"
 #include "uci.h"
-#include "io.h"
 #include "util.h"
 #include "evaluate.h"
 #include <stdio.h>
 #include "makemove.h"
 #include "movegen.h"
 #include "attack.h"
+#include "board.h"
 #include <stdlib.h>
 
 static void checkUp(S_SEARCHINFO *info) {

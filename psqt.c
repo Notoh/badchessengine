@@ -78,9 +78,9 @@ static __attribute__((constructor)) void initPSQT() {
     for(int type = bP; type <= bK; type++) {
         for(int sq = A1; sq <= H8; sq++) {
             //Base piece value + piece square value
-            PSQT[type][sq] = -(pieceSqValue[type][sq] + pieceVal[type]);
+            PSQT[type][SQ64(sq)] = -(pieceSqValue[BLACKTOWHITE(type)][SQ64(sq)] + pieceVal[type]);
             //inverse for white
-            PSQT[BLACKTOWHITE(type)][MIRROR64(sq)] = -PSQT[type][sq];
+            PSQT[BLACKTOWHITE(type)][MIRROR64(SQ64(sq))] = -PSQT[type][SQ64(sq)];
         }
     }
 }

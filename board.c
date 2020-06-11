@@ -2,7 +2,7 @@
 #include "bitboards.h"
 #include "hashkeys.h"
 #include "psqt.h"
-#include <stdio.h>
+
 
 void resetBoard(S_BOARD *pos) {
 
@@ -241,7 +241,7 @@ int checkBoard(const S_BOARD *pos) {
         if(pieceMaj[t_piece]) t_majPce[colour]++;
         if(pieceMin[t_piece]) t_minPce[colour]++;
 
-        t_material[colour] += pieceVal[t_piece];
+        t_material[colour] += PSQT[t_piece][sq64];
     }
 
     for(t_piece = wP; t_piece <= bK; t_piece++) {

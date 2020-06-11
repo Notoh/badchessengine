@@ -1,6 +1,7 @@
 #include "io.h"
 #include "movegen.h"
-#include <stdio.h>
+#include "board.h"
+#include "validate.h"
 
 char *prsq(const int sq) {
 

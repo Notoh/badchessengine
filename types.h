@@ -6,6 +6,9 @@
 #define BADCHESSENGINE_TYPES_H
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define NAME "Bad Chess Engine 0.4.1"
 
@@ -31,7 +34,7 @@
 
 #define MOVE(f,t,ca,pro,fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
 
-//#define DEBUG
+#define DEBUG
 
 
 #ifndef DEBUG

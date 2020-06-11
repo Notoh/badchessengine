@@ -62,7 +62,7 @@ void initHashTable(S_HASHTABLE *table, const int MB)  {
 
 void storeHashEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth) {
     int index = pos->posKey % pos->hashtable->numEntries;
-    ASSERT(index >= 0 && index <= pos->pvtable->numEntries - 1);
+    ASSERT(index >= 0 && index <= pos->hashtable->numEntries - 1);
 
     if(pos->hashtable->hashTable[index].posKey == 0) {
         pos->hashtable->newWrite++;
@@ -83,7 +83,7 @@ void storeHashEntry(S_BOARD *pos, const int move, int score, const int flags, co
 int probeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int depth) {
     int index = pos->posKey % pos->hashtable->numEntries;
 
-    ASSERT(index >= 0 && index <= pos->pvtable->numEntries - 1);
+    ASSERT(index >= 0 && index <= pos->hashtable->numEntries - 1);
     ASSERT(depth >= 1 && depth < MAXDEPTH);
     ASSERT(alpha<beta);
     ASSERT(alpha>=-INFINITE&&alpha<=INFINITE);
@@ -132,7 +132,7 @@ int probeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 int probePvMove(const S_BOARD *pos) {
 
     int index = pos->posKey % pos->hashtable->numEntries;
-    ASSERT(index >= 0 && index <= pos->HashTable->numEntries - 1);
+    ASSERT(index >= 0 && index <= pos->hashtable->numEntries - 1);
 
     if(pos->hashtable->hashTable[index].posKey == pos->posKey) {
         return pos->hashtable->hashTable[index].move;
