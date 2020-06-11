@@ -1,6 +1,7 @@
 #include "board.h"
 #include "bitboards.h"
 #include "hashkeys.h"
+#include "psqt.h"
 #include <stdio.h>
 
 void resetBoard(S_BOARD *pos) {
@@ -171,23 +172,23 @@ void printBoard(const S_BOARD *pos) {
             pos->castlePerm&BSCA?'k':'-',
             pos->castlePerm&BLCA?'q':'-');
 
-    printf("PosKey:%llX\n", pos->posKey);
+    printf("PosKey:%lX\n", pos->posKey);
 
 }
 
 void updateListsMaterial(S_BOARD *pos) {
-    int piece, sq, index, colour;
+    int piece, sq, i, colour;
 
-    for(index = 0; index < BRD_SQ_NUM; index++) {
-        sq = index;
-        piece = pos->pieces[index];
+    for(i = 0; i < BRD_SQ_NUM; i++) {
+        sq = i;
+        piece = pos->pieces[i];
         if(piece != OFFBOARD && piece != EMPTY) {
             colour = pieceCol[piece];
             if(pieceBig[piece] == TRUE) pos->bigPce[colour]++;
             if(pieceMaj[piece] == TRUE) pos->majPce[colour]++;
             if(pieceMin[piece] == TRUE) pos->minPce[colour]++;
 
-            pos->material[colour] += pieceVal[piece];
+            pos->material[colour] += PSQT[piece][SQ64(sq)];
 
             //piece list
             pos->pList[piece][pos->pceNum[piece]] = sq;

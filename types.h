@@ -55,6 +55,9 @@ exit(1);}
 #define SQ120(sq64) (sq64tosq120[sq64])
 #define SQOFFBOARD(sq) (filesBrd[(sq)]==OFFBOARD)
 #define MIRROR64(sq) (Mirror64[(sq)])
+#define WHITETOBLACK(p) (p+6)
+#define BLACKTOWHITE(p) (p-6)
+
 
 typedef struct {
     uint64_t posKey;
@@ -117,8 +120,6 @@ typedef struct Board {
     int searchKillers[2][MAXDEPTH];
 
 } S_BOARD;
-
-
 
 typedef struct {
     long start;

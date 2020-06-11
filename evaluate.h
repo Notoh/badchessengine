@@ -7,8 +7,11 @@
 
 #include "types.h"
 
-int eval(const S_BOARD *pos);
-int materialDraw(const S_BOARD *pos);
+#define MakeScore(mg, eg) ((int)((unsigned int)(eg) << 16) + (mg))
+#define S(mg, eg) MakeScore(mg, eg)
+#define ScoreMG(s) ((int16_t)((uint16_t)((unsigned)((s)))))
+#define ScoreEG(s) ((int16_t)((uint16_t)((unsigned)((s) + 0x8000) >> 16)))
 
+int eval(const S_BOARD *pos);
 
 #endif //BADCHESSENGINE_EVALUATE_H

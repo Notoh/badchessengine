@@ -80,8 +80,6 @@ static void clearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
     info->fhf = 0;
 }
 
-
-
 static int quiescence(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta) {
     ASSERT(checkBoard(pos));
     if((info->nodes & 2047) == 0) {
@@ -152,7 +150,7 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
         depth++;
     }
 
-    if(depth == 0) {
+    if(depth <= 0) {
         return quiescence(pos, info, alpha, beta);
     }
 

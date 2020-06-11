@@ -1,6 +1,7 @@
 #include "makemove.h"
 #include "attack.h"
 #include "bitboards.h"
+#include "psqt.h"
 
 #define HASH_PCE(pce,sq) (pos->posKey ^= (pieceKeys[(pce)][(sq)]))
 #define HASH_CA (pos->posKey ^= (castleKeys[(pos->castlePerm)]))
@@ -37,7 +38,7 @@ static void clearPiece(S_BOARD *pos, const int sq) {
     HASH_PCE(pce, sq);
 
     pos->pieces[sq] = EMPTY;
-    pos->material[col] -= pieceVal[pce];
+    pos->material[col] -= PSQT[pce][sq];
 
     if(pieceBig[pce]) {
         pos->bigPce[col]--;
@@ -85,7 +86,7 @@ static void addPiece(S_BOARD *pos, const int sq, const int pce) {
         SETBIT(pos->pawns[BOTH], SQ64(sq));
     }
 
-    pos->material[col] += pieceVal[pce];
+    pos->material[col] += PSQT[pce][sq];
     pos->pList[pce][pos->pceNum[pce]++] = sq;
 }
 
