@@ -6,6 +6,9 @@
 #define BADCHESSENGINE_TYPES_H
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define NAME "Bad Chess Engine 0.4.1"
 
@@ -55,6 +58,9 @@ exit(1);}
 #define SQ120(sq64) (sq64tosq120[sq64])
 #define SQOFFBOARD(sq) (filesBrd[(sq)]==OFFBOARD)
 #define MIRROR64(sq) (Mirror64[(sq)])
+#define WHITETOBLACK(p) (p+6)
+#define BLACKTOWHITE(p) (p-6)
+
 
 typedef struct {
     uint64_t posKey;
@@ -92,6 +98,9 @@ typedef struct Board {
     int enPas;
     int fiftyMove;
 
+    int basePhase;
+    int phase;
+
     int ply;
     int histPly;
 
@@ -103,7 +112,7 @@ typedef struct Board {
     int bigPce[2]; //not pawns
     int majPce[2]; //rooks + queen
     int minPce[2]; //bishops + knights
-    int material[2];
+    int material;
 
     S_UNDO history[MAXGAMEMOVES];
 
@@ -117,8 +126,6 @@ typedef struct Board {
     int searchKillers[2][MAXDEPTH];
 
 } S_BOARD;
-
-
 
 typedef struct {
     long start;
@@ -223,5 +230,6 @@ const int pieceRookQueen[13];
 const int pieceBishopQueen[13];
 const int pieceSlides[13];
 const int Mirror64[64];
+const int PhaseValue[13];
 
 #endif //BADCHESSENGINE_TYPES_H

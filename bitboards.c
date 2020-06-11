@@ -1,5 +1,4 @@
 #include "bitboards.h"
-#include <stdio.h>
 
 //magic pawn
 const int pawnMagics[64] = {

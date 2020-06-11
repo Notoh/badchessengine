@@ -1,6 +1,10 @@
 #include "makemove.h"
 #include "attack.h"
 #include "bitboards.h"
+#include "psqt.h"
+#include "validate.h"
+#include "board.h"
+
 
 #define HASH_PCE(pce,sq) (pos->posKey ^= (pieceKeys[(pce)][(sq)]))
 #define HASH_CA (pos->posKey ^= (castleKeys[(pos->castlePerm)]))
@@ -37,7 +41,10 @@ static void clearPiece(S_BOARD *pos, const int sq) {
     HASH_PCE(pce, sq);
 
     pos->pieces[sq] = EMPTY;
-    pos->material[col] -= pieceVal[pce];
+    pos->material -= PSQT[pce][SQ64(sq)];
+    pos->basePhase -= PhaseValue[pce];
+    pos->phase = (pos->basePhase * 256 + 12) / 24;
+
 
     if(pieceBig[pce]) {
         pos->bigPce[col]--;
@@ -85,7 +92,11 @@ static void addPiece(S_BOARD *pos, const int sq, const int pce) {
         SETBIT(pos->pawns[BOTH], SQ64(sq));
     }
 
-    pos->material[col] += pieceVal[pce];
+    pos->material += PSQT[pce][SQ64(sq)];
+
+    pos->basePhase += PhaseValue[pce];
+    pos->phase = (pos->basePhase * 256 + 12) / 24;
+
     pos->pList[pce][pos->pceNum[pce]++] = sq;
 }
 
@@ -104,6 +115,8 @@ static void movePiece(S_BOARD *pos, const int from, const int to) {
 
     HASH_PCE(pce, to);
     pos->pieces[to] = pce;
+
+    pos->material += PSQT[pce][SQ64(to)] - PSQT[pce][SQ64(from)];
 
     if(!pieceBig[pce]) {
         CLRBIT(pos->pawns[col], SQ64(from));

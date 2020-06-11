@@ -1,5 +1,8 @@
 #include "movegen.h"
 #include "makemove.h"
+#include "board.h"
+#include "validate.h"
+#include "attack.h"
 
 const int loopSlidePce[8] = {wB, wR, wQ, 0, bB, bR, bQ, 0};
 
