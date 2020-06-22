@@ -6,6 +6,7 @@
 #define BADCHESSENGINE_TYPES_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define NAME "Bad Chess Engine 0.4.1"
 
@@ -55,6 +56,20 @@ exit(1);}
 #define SQ120(sq64) (sq64tosq120[sq64])
 #define SQOFFBOARD(sq) (filesBrd[(sq)]==OFFBOARD)
 #define MIRROR64(sq) (Mirror64[(sq)])
+
+#define MAX(a,b)             \
+({                           \
+    __typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
+    _a > _b ? _a : _b;       \
+})
+
+#define MIN(a,b)             \
+({                           \
+    __typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
+    _a < _b ? _a : _b;       \
+})
 
 typedef struct {
     uint64_t posKey;

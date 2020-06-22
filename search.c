@@ -34,21 +34,14 @@ static void pickNextMove(int moveNum, S_MOVELIST *list) {
     list->moves[bestNum]= temp;
 }
 
-static int isRepetition(const S_BOARD *pos) {
-    int index = 0;
-    int times = 0;
+static bool isRepetition(const S_BOARD *pos) {
 
-    for(index = pos->histPly - pos->fiftyMove; index<pos->histPly-1; index++) {
-
-        ASSERT(index >= 0 && index < MAXGAMEMOVES);
-
-        if(pos->posKey == pos->history[index].posKey) {
-            if(++times >= 2) { //if its repeated more than twice a third repetition is a draw
-                return TRUE;
-            }
+    for(int i = pos->histPly - pos->fiftyMove; i<pos->histPly-1; i+=2) { //ply + 2 because position isn't same if different turn
+        if(pos->posKey == pos->history[i].posKey) {
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 static void clearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
@@ -93,6 +86,7 @@ static int quiescence(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta) {
     if(isRepetition(pos) || pos->fiftyMove >= 100) {
         return 0;
     }
+
     if(pos->ply > MAXDEPTH - 1) {
         return eval(pos);
     }
@@ -152,7 +146,11 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
         depth++;
     }
 
-    if(depth == 0) {
+    const bool pvNode = alpha != beta - 1;
+    const bool root = pos->ply == 0;
+
+
+    if(depth <= 0) {
         return quiescence(pos, info, alpha, beta);
     }
 
@@ -162,12 +160,22 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
 
     info->nodes++;
 
-    if((isRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) {
-        return 0;
-    }
+    //exit early
+    if(!root) {
+        if((isRepetition(pos) || pos->fiftyMove >= 100)) {
+            return 0;
+        }
 
-    if(pos->ply > MAXDEPTH - 1) {
-        return eval(pos);
+        if(pos->ply >= MAXDEPTH) {
+            return eval(pos);
+        }
+
+        //mate distance pruning
+        alpha = MAX(alpha, -INFINITE+pos->ply);
+        beta = MIN(beta, INFINITE - pos->ply-1);
+        if(alpha >= beta) {
+            return alpha;
+        }
     }
 
     int score = -INFINITE;
