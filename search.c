@@ -190,7 +190,7 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
     }
 
     //logic from weiss
-    int stat = pos->history[pos->histPly].score = inCheck ? NOSCORE : !doNull ? -pos->history[pos->histPly-1].score + 2 * Tempo : eval(pos);
+    int stat = pos->history[pos->histPly].score = inCheck ? NOSCORE : !doNull ? -pos->history[pos->histPly-1].score : eval(pos);
     // no 2 null moves in a row, so if we aren't doing it this ply then necessarily we did it last ply
 
     bool improving = !inCheck && pos->ply >= 2 && stat > pos->history[pos->histPly-2].score;
@@ -208,7 +208,7 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
     }
 
     //nullmove
-    if(!root && !inCheck && !pvNode && doNull && (pos->bigPce[pos->side] > 1) && depth >= 4) {
+    if(!root && !inCheck && !pvNode && stat >= beta && doNull && (pos->bigPce[pos->side] > 1) && depth >= 4) {
         makeNullMove(pos);
         score = -alphabeta(pos, info, -beta, -beta + 1, depth-4, FALSE);
         takeNullMove(pos);
@@ -252,6 +252,7 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
         }
 
         legal++;
+        //pv search
         if(foundPv == TRUE) {
             score = -alphabeta(pos, info, -alpha - 1, -alpha, depth-1, TRUE);
             if(score > alpha && score < beta) {
@@ -260,7 +261,6 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
         } else {
             score = -alphabeta(pos, info, -beta, -alpha, depth-1, TRUE);
         }
-        score = -alphabeta(pos, info, -beta, -alpha, depth-1, TRUE);
 
         takeMove(pos);
 
