@@ -240,6 +240,7 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
         }
     }
 
+    int foundPv = FALSE;
 
 
     for(moveNum = 0; moveNum < list->count; moveNum++) {
@@ -251,7 +252,15 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
         }
 
         legal++;
-        score = -alphabeta(pos,info, -beta, -alpha, depth-1, TRUE);
+        if(foundPv == TRUE) {
+            score = -alphabeta(pos, info, -alpha - 1, -alpha, depth-1, TRUE);
+            if(score > alpha && score < beta) {
+                score = -alphabeta(pos, info, -beta, -alpha, depth-1, TRUE);
+            }
+        } else {
+            score = -alphabeta(pos, info, -beta, -alpha, depth-1, TRUE);
+        }
+        score = -alphabeta(pos, info, -beta, -alpha, depth-1, TRUE);
 
         takeMove(pos);
 
@@ -282,6 +291,7 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
 
                     return beta;
                 }
+                foundPv = TRUE;
                 alpha = score;
 
                 //update history
