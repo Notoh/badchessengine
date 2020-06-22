@@ -101,6 +101,7 @@ static int quiescence(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta) {
         alpha = score;
     }
 
+    //todo futility pruning
     S_MOVELIST list[1];
     generateAllCaps(pos, list);
 
@@ -181,12 +182,33 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
     int score = -INFINITE;
     int pvMove = NOMOVE;
 
+
+    //tt probe
     if(probeHashEntry(pos, &pvMove, &score, alpha, beta, depth) == TRUE) {
         pos->hashtable->cut++;
         return score;
     }
 
-    if(doNull && !inCheck && pos->ply && (pos->bigPce[pos->side] > 1) && depth >= 4) {
+    //logic from weiss
+    int stat = pos->history[pos->histPly].score = inCheck ? NOSCORE : !doNull ? -pos->history[pos->histPly-1].score + 2 * Tempo : eval(pos);
+    // no 2 null moves in a row, so if we aren't doing it this ply then necessarily we did it last ply
+
+    bool improving = !inCheck && pos->ply >= 2 && stat > pos->history[pos->histPly-2].score;
+
+    //TODO: tune prunings
+
+    //razoring
+    if(!root && !inCheck && !pvNode && depth < 2 && stat + 640 < alpha) {
+        return quiescence(pos, info, alpha, beta);
+    }
+
+    //reverse futility, if eval is well above beta then we assume it will hold above beta
+    if(!root && !inCheck && !pvNode && depth < 7 && stat - 225 * depth + 100 * improving >= beta) {
+        return stat;
+    }
+
+    //nullmove
+    if(!root && !inCheck && !pvNode && doNull && (pos->bigPce[pos->side] > 1) && depth >= 4) {
         makeNullMove(pos);
         score = -alphabeta(pos, info, -beta, -beta + 1, depth-4, FALSE);
         takeNullMove(pos);
@@ -246,6 +268,8 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
             return 0;
         }
 
+
+        //new best move
         if(score > bestScore) {
             bestScore = score;
             bestMove = list->moves[moveNum].move;
@@ -256,11 +280,13 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
                     }
                     info->fh++;
 
+                    //update search killers
                     if(list->moves[moveNum].move & MFLAGCAP) {
                         pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
                         pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
                     }
 
+                    //update pv
                     storeHashEntry(pos, bestMove, beta, HFBETA, depth);
 
                     return beta;
@@ -268,6 +294,7 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
                 foundPv = TRUE;
                 alpha = score;
 
+                //update history
                 if(!(list->moves[moveNum].move & MFLAGCAP)) {
                     pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
                 }

@@ -19,6 +19,7 @@
 #define IsKi(p) (pieceKing[(p)])
 #define MAXDEPTH 100
 #define INFINITE 30000
+#define NOSCORE INFINITE + 2
 #define ISMATE (INFINITE - MAXDEPTH)
 #define MAXGAMEMOVES 2048
 #define MAXPOSITIONMOVES 256
@@ -90,6 +91,7 @@ typedef struct {
 
 typedef struct {
     int move;
+    int score;
     int castlePerm;
     int enPas;
     int fiftyMove;
@@ -238,5 +240,6 @@ const int pieceRookQueen[13];
 const int pieceBishopQueen[13];
 const int pieceSlides[13];
 const int Mirror64[64];
+const int Tempo;
 
 #endif //BADCHESSENGINE_TYPES_H

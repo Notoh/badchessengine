@@ -79,6 +79,7 @@ const int KingO[64] = {
         -70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70
 };
 
+const int Tempo = 20;
 
 //based on logic from sjeng
 static int materialDraw(const S_BOARD *pos) {
