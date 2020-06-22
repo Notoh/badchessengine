@@ -208,7 +208,7 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
     }
 
     //nullmove
-    if(!root && !inCheck && !pvNode && stat >= beta && doNull && (pos->bigPce[pos->side] > 1) && depth >= 4) {
+    if(!root && !inCheck && !pvNode && stat >= beta && doNull && (pos->bigPce[pos->side] > 1) && depth >= 3) {
         makeNullMove(pos);
         score = -alphabeta(pos, info, -beta, -beta + 1, depth-4, FALSE);
         takeNullMove(pos);
