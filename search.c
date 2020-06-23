@@ -9,6 +9,18 @@
 #include "movegen.h"
 #include "attack.h"
 #include <stdlib.h>
+#include <math.h>
+
+int LMR[64][64];
+
+void initReductions() {
+    //terms from ethereal
+    for(int depth = 1; depth < 64; depth++) {
+        for(int played = 1; played < 64; played++) {
+            LMR[depth][played] = 0.75 + log(depth) * log(played) / 2.25;
+        }
+    }
+}
 
 static void checkUp(S_SEARCHINFO *info) {
     if(info->timeset == TRUE && getTimeMs() > info->stop) {
@@ -69,11 +81,27 @@ static void clearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
     info->nullCut = 0;
     info->stopped = 0;
     info->nodes = 0;
-    info->fh = 0;
-    info->fhf = 0;
 }
 
+//based on weiss
+static inline bool pawnOn7th(S_BOARD *pos) {
+    return pos->pawns[pos->side] & rankBBMask[pos->side == WHITE ? RANK_7 : RANK_1];
+}
 
+static int deltaPruningMargin(S_BOARD *pos) {
+
+    const int base = pawnOn7th(pos) ? pieceVal[wQ] : pieceVal[wP];
+    int max = pieceVal[wP];
+
+    for(int piece = wP + 6 * pos->side; piece <= wQ + 6 * pos->side; piece++) {
+        if(pos->pList[piece][0] != NO_SQ) {
+            max = MAX(max, pieceVal[piece]);
+        }
+    }
+
+    return max;
+
+}
 
 static int quiescence(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta) {
     ASSERT(checkBoard(pos));
@@ -91,17 +119,21 @@ static int quiescence(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta) {
         return eval(pos);
     }
 
+    //standing pat
     int score = eval(pos);
 
+    //if score beats beta, assume we have a beta cutoff
     if(score >= beta) {
-        return beta;
+        return score;
     }
-
+    if(score + deltaPruningMargin(pos) < alpha) {
+        return alpha;
+    }
     if(score > alpha) {
         alpha = score;
     }
 
-    //todo futility pruning
+
     S_MOVELIST list[1];
     generateAllCaps(pos, list);
 
@@ -121,16 +153,8 @@ static int quiescence(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta) {
         score = -quiescence(pos, info, -beta, -alpha);
 
         takeMove(pos);
-        if (info->stopped == TRUE) {
-            return 0;
-        }
         if (score > alpha) {
             if (score >= beta) {
-                if (legal == 1) {
-                    info->fhf++;
-                }
-                info->fh++;
-
                 return beta;
             }
             alpha = score;
@@ -203,7 +227,7 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
     }
 
     //reverse futility, if eval is well above beta then we assume it will hold above beta
-    if(!root && !inCheck && !pvNode && depth < 7 && stat - 225 * depth + 100 * improving >= beta) {
+    if(!root && !inCheck && !pvNode && depth <= 8 && stat - 91 * depth > beta) {
         return stat;
     }
 
@@ -225,42 +249,67 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
     generateAllMoves(pos, list);
 
     int moveNum = 0;
+    int quietCount = 0;
     int legal = 0;
     int oldAlpha = alpha;
     int bestMove = NOMOVE;
     int bestScore = -INFINITE;
     score = -INFINITE;
 
+    int quiets[32] = {0};
+
     if(pvMove != NOMOVE) {
         for(moveNum = 0; moveNum < list->count; moveNum++) {
             if(list->moves[moveNum].move == pvMove) {
-                list->moves[moveNum].score = 2000000;
+                list->moves[moveNum].score = 200000000;
                 break;
             }
         }
     }
 
-    int foundPv = FALSE;
-
-
     for(moveNum = 0; moveNum < list->count; moveNum++) {
 
+
         pickNextMove(moveNum, list);
+
+        bool quiet = moveQuiet(list->moves[moveNum].move);
+
+        //late move pruning
+        if(!pvNode && !inCheck && quietCount > (3+2*depth*depth) / (2 - improving)) {
+            break;
+        }
 
         if(!makeMove(pos, list->moves[moveNum].move)) {
             continue;
         }
 
         legal++;
-        //pv search
-        if(foundPv == TRUE) {
-            score = -alphabeta(pos, info, -alpha - 1, -alpha, depth-1, TRUE);
-            if(score > alpha && score < beta) {
-                score = -alphabeta(pos, info, -beta, -alpha, depth-1, TRUE);
-            }
-        } else {
-            score = -alphabeta(pos, info, -beta, -alpha, depth-1, TRUE);
+        if(quiet && quietCount < 32)
+            quiets[quietCount++] = list->moves[moveNum].move;
+
+        //lmr tuning from combination of weiss + ethereal
+        bool doLMR = depth > 2 && legal > (2 + pvNode);
+
+        if(doLMR) {
+            //base reduction
+            int R = LMR[MIN(depth, 63)][MIN(legal, 63)];
+
+            R -= pvNode;
+
+            R -= improving;
+
+            R += quiet;
+
+            int reducedDepth = CLAMP(depth-1-R, 1, depth-1-1);
+
+            score = -alphabeta(pos, info, -alpha - 1, -alpha, reducedDepth, true);
         }
+
+        if(doLMR ? score > alpha : !pvNode || legal > 1)
+            score = -alphabeta(pos, info, -alpha - 1, -alpha, depth-1, TRUE);
+
+        if(pvNode && ((score > alpha && score < beta) || legal == 1))
+            score = -alphabeta(pos, info, -beta, -alpha, depth-1, TRUE);
 
         takeMove(pos);
 
@@ -274,39 +323,46 @@ static int alphabeta(S_BOARD *pos, S_SEARCHINFO *info, int alpha, int beta, int 
             bestScore = score;
             bestMove = list->moves[moveNum].move;
             if(score > alpha) {
+                //beta cutoff
                 if(score >= beta) {
-                    if(legal == 1) {
-                        info->fhf++;
-                    }
-                    info->fh++;
 
                     //update search killers
-                    if(list->moves[moveNum].move & MFLAGCAP) {
+                    if(quiet && pos->searchKillers[0][pos->ply] != list->moves[moveNum].move) {
                         pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
                         pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
                     }
 
-                    //update pv
+                    //update hash table
                     storeHashEntry(pos, bestMove, beta, HFBETA, depth);
 
                     return beta;
                 }
-                foundPv = TRUE;
                 alpha = score;
 
                 //update history
-                if(!(list->moves[moveNum].move & MFLAGCAP)) {
-                    pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
+                if(quiet) {
+                    pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth * depth;
                 }
             }
         }
     }
+
+
 
     if(legal == 0) {
         if (inCheck) {
             return -INFINITE + pos->ply;
         } else {
             return 0;
+        }
+    }
+
+    //quiet moves that fail to produce a cutoff get worse history score
+    if(bestScore >= beta && moveQuiet(bestMove)) {
+        for(int i = 0; i < quietCount; i++) {
+            int move = quiets[i];
+            if(move == bestMove) continue;
+            pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] -= depth * depth;
         }
     }
 

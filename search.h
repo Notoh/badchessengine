@@ -7,6 +7,7 @@
 
 #include "types.h"
 
+void initReductions();
 void searchPosition(S_BOARD *pos, S_SEARCHINFO *info);
 
 #endif //BADCHESSENGINE_SEARCH_H

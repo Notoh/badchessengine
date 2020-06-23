@@ -68,9 +68,9 @@ static void addQuietMove(const S_BOARD *pos, int move, S_MOVELIST *movelist) {
     movelist->moves[movelist->count].move = move;
 
     if(pos->searchKillers[0][pos->ply] == move) {
-        movelist->moves[movelist->count].score = 900000;
+        movelist->moves[movelist->count].score = 900000000;
     } else if(pos->searchKillers[1][pos->ply] == move) {
-        movelist->moves[movelist->count].score = 800000;
+        movelist->moves[movelist->count].score = 800000000;
     } else {
         movelist->moves[movelist->count].score = pos->searchHistory[pos->pieces[FROMSQ(move)]][TOSQ(move)];
     }
@@ -84,7 +84,7 @@ static void addCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *movelist) {
     ASSERT(pieceValid(CAPTURED(move)));
 
     movelist->moves[movelist->count].move = move;
-    movelist->moves[movelist->count].score = mvvLvaScores[CAPTURED(move)][pos->pieces[FROMSQ(move)]] + 1000000;
+    movelist->moves[movelist->count].score = mvvLvaScores[CAPTURED(move)][pos->pieces[FROMSQ(move)]] + 100000000;
     movelist->count++;
 }
 
@@ -93,7 +93,7 @@ static void addEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *movelist)
     ASSERT(sqOnBoard(TOSQ(move)));
 
     movelist->moves[movelist->count].move = move;
-    movelist->moves[movelist->count].score = 1000105;
+    movelist->moves[movelist->count].score = 100000105;
     movelist->count++;
 }
 

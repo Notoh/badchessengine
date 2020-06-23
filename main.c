@@ -1,4 +1,5 @@
 #include "init.h"
+#include "search.h"
 #include "uci.h"
 #include "tt.h"
 #include <stdlib.h>
@@ -13,6 +14,7 @@ int main(void) {
     info->quit = FALSE;
     board->hashtable->hashTable = NULL;
     initHashTable(board->hashtable, 64);
+    initReductions();
 
 #ifndef CONSOLE
     uciLoop(board, info);

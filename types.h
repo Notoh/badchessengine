@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define NAME "Bad Chess Engine 0.4.2"
+#define NAME "Bad Chess Engine 0.4.4"
 
 #define BRD_SQ_NUM 120
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -28,6 +28,8 @@
 #define MFLAGCA 0x1000000
 #define MFLAGCAP 0x7c000
 #define MFLAGPROM 0xf00000
+#define moveNoisy(move)   (move & (MFLAGCAP | MFLAGPROM | MFLAGEP))
+#define moveQuiet(move)   (!moveNoisy(move))
 
 #define NOMOVE 0
 
@@ -57,6 +59,8 @@ exit(1);}
 #define SQ120(sq64) (sq64tosq120[sq64])
 #define SQOFFBOARD(sq) (filesBrd[(sq)]==OFFBOARD)
 #define MIRROR64(sq) (Mirror64[(sq)])
+#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+
 
 #define MAX(a,b)             \
 ({                           \
@@ -150,10 +154,6 @@ typedef struct {
 
     int quit;
     int stopped;
-
-    float fh;
-    float fhf;
-
     int GAME_MODE;
     int POST_THINKING;
 
