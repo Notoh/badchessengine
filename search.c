@@ -36,7 +36,7 @@ static void pickNextMove(int moveNum, S_MOVELIST *list) {
 
 static bool isRepetition(const S_BOARD *pos) {
 
-    for(int i = pos->histPly - pos->fiftyMove; i<pos->histPly-1; i+=2) { //ply + 2 because position isn't same if different turn
+    for(int i = pos->histPly - pos->fiftyMove; i<pos->histPly-1; i++) { //ply + 2 because position isn't same if different turn
         if(pos->posKey == pos->history[i].posKey) {
             return true;
         }
