@@ -398,9 +398,9 @@ void printThinking(const S_BOARD *pos, int depth, int score, long nodes, long el
             : score;
 
     int hash = hashFull(pos);
-    int nps = (int)(1000 * nodes / (elapsed + 1));
+    long nps = (1000 * (nodes / (elapsed + 1)));
 
-    printf("info depth %d score %s %d time %ld nodes %ld nps %d hashfull %d pv", depth, type, score, elapsed, nodes, nps, hash);
+    printf("info depth %d score %s %d time %ld nodes %ld nps %ld hashfull %d pv", depth, type, score, elapsed, nodes, nps, hash);
 
     for(int i = 0; i < pvMoves; i++) {
         printf(" %s", prmove(pos->pvarray[i]));
