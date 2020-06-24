@@ -99,7 +99,7 @@ static int deltaPruningMargin(S_BOARD *pos) {
         }
     }
 
-    return max;
+    return base + max;
 
 }
 
@@ -380,7 +380,6 @@ void searchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
     int bestScore = -INFINITE;
     int currentDepth = 0;
     int pvMoves = 0;
-    int pvNum = 0;
 
     clearForSearch(pos, info);
     for(currentDepth = 1; currentDepth <= info->depth; currentDepth++) {
