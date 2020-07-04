@@ -2,7 +2,7 @@
 
 uci compliant chess engine in c, initially with VICE as a base and inspired by Stockfish, Ethereal, and Weiss.
 
-I haven't super extensively tested it  but I'd estimate based on myself being an avid chess player + basic testing that it's ~1900-2000 elo
+[It has a CCRL 40/2 Blitz Rating of 2008.](https://ccrl.chessdom.com/ccrl/404/cgi/engine_details.cgi?match_length=30&print=Details&each_game=1&eng=BadChessEngine%200.4.4%2064-bit#BadChessEngine_0_4_4_64-bit) 
 
 if you want to learn how to make a chess engine, VICE by bluefever software is great for teaching you techniques
 
