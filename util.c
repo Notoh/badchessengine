@@ -1,6 +1,6 @@
 #include "util.h"
 #include <stdio.h>
-#include <io.h>
+#include "io.h"
 
 #ifdef WIN32
 #include "windows.h"
