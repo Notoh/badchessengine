@@ -183,10 +183,10 @@ typedef struct {
 enum { FALSE, TRUE }; //i'm lazy
 enum { WHITE, BLACK, BOTH };
 
-const char* pceChar;
-const char* sideChar;
-const char* rankChar;
-const char* fileChar;
+extern const char* pceChar;
+extern const char* sideChar;
+extern const char* rankChar;
+extern const char* fileChar;
 
 enum {
     A1 = 21, B1, C1, D1, E1, F1, G1, H1,
@@ -213,33 +213,33 @@ enum { HFNONE, HFALPHA, HFBETA, HFEXACT };
 
 
 
-int sq120tosq64[BRD_SQ_NUM];
-int sq64tosq120[64];
-uint64_t setMask[64];
-uint64_t clearMask[64];
-uint64_t pieceKeys[13][120];
-uint64_t sideKey;
-uint64_t castleKeys[16];
-int filesBrd[BRD_SQ_NUM];
-int ranksBrd[BRD_SQ_NUM];
-uint64_t fileBBMask[8];
-uint64_t rankBBMask[8];
-uint64_t blackPassedMask[64];
-uint64_t whitePassedMask[64];
-uint64_t isolatedMask[64];
-const int pieceVal[13];
+extern int sq120tosq64[BRD_SQ_NUM];
+extern int sq64tosq120[64];
+extern uint64_t setMask[64];
+extern uint64_t clearMask[64];
+extern uint64_t pieceKeys[13][120];
+extern uint64_t sideKey;
+extern uint64_t castleKeys[16];
+extern int filesBrd[BRD_SQ_NUM];
+extern int ranksBrd[BRD_SQ_NUM];
+extern uint64_t fileBBMask[8];
+extern uint64_t rankBBMask[8];
+extern uint64_t blackPassedMask[64];
+extern uint64_t whitePassedMask[64];
+extern uint64_t isolatedMask[64];
+extern const int pieceVal[13];
 
-const int pieceBig[13];
-const int pieceMaj[13];
-const int pieceMin[13];
-const int pieceCol[13];
-const int piecePawn[13];
-const int pieceKnight[13];
-const int pieceKing[13];
-const int pieceRookQueen[13];
-const int pieceBishopQueen[13];
-const int pieceSlides[13];
-const int Mirror64[64];
-const int Tempo;
+extern const int pieceBig[13];
+extern const int pieceMaj[13];
+extern const int pieceMin[13];
+extern const int pieceCol[13];
+extern const int piecePawn[13];
+extern const int pieceKnight[13];
+extern const int pieceKing[13];
+extern const int pieceRookQueen[13];
+extern const int pieceBishopQueen[13];
+extern const int pieceSlides[13];
+extern const int Mirror64[64];
+extern const int Tempo;
 
 #endif //BADCHESSENGINE_TYPES_H
